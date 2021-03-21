@@ -14,12 +14,24 @@ import json
 # then import from them like this:
 from search.util import print_board, print_slide, print_swing
 
+def make_graphs(initial, goal): 
+    graphs = []
+    
+    return graphs
+
+def make_solution(initial, goal): 
+    # Move towards the goals while keeping track of the distance
+    print(None)
+
 def main():
-    print("D")
     try:
         with open(sys.argv[1]) as file:
-            # data = json.load(file)
-            print(sys.argv[1])
+            data = json.load(file)
+            print(data)
+            initials = data['upper']
+            goals = data['lower']
+            blocked = data['block']
+            # print(initials)   
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
         sys.exit(1)
