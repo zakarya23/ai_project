@@ -7,138 +7,51 @@ This script contains the entry point to the program (the code in
 
 import sys
 import json
+import math
+from queue import PriorityQueue
 
 # If you want to separate your code into separate files, put them
 # inside the `search` directory (like this one and `util.py`) and
 # then import from them like this:
 from search.util import print_board, print_slide, print_swing
-
-class Node():
-    def init(curr, parent=None, position=None):
-        curr.parent = parent;
-        curr.position = position 
-        curr.type = None   #paper,rock etc.
-        curr.g = 0
-        curr.h = 0
-        curr.f = 0
-
-    #implementation of the swing movement goes here
-    def swing(curr.position):
-       
-       return None
-
-    #implementation of the slide movement goes here
-    def slide(curr.position):
-
-        return None
-
-        
+import search.node as Node
 
 
+def make_solution(inital, goal): 
+    unvisited = PriorityQueue()
+    visited = [] 
+    # Format is [(x, y), distance]
+    start = [0, (inital[0], inital[1])]
+    unvisited.put(start)
+    not_found = True
 
+    while not unvisited.empty() and not_found: 
+        current = unvisited.get(0)
+        for next_position in [(0, 1), (1, 0), (-1, 0), (0, -1)]: 
 
+            new_point = (current[1][0] + next_position[0], current[1][1] + next_position[1])
+            if (new_point == goal): 
+                not_found = False
+                break
+            distance_to_goal = math.sqrt(abs(goal[0] - new_point[0]) + abs(goal[1] - new_point[1]))
+            unvisited.put([distance_to_goal, (new_point)])
+        visited.append(current)
 
-#This will return a list of tuples demonstrating the shortest path
-def make_solution(board, start, goal):
-    
-
-
-    #initializing start and end nodes
-    
-    start = Node(None, start)  
-    start.g = start.h = start.f = 0
-    goal = Node(None, goal)  
-    goal.g = goal.h = goal.f = 0
-
-
-    unvisited = []  #visited nodes
-    visited = []    #unvisited nodes
-
-    unvisited.append(start)
-
-    while len(unvisited) > 0:
-
-        curr = unvisited[0]
-        curr_index = 0
-
-        for index, _hex in enumerate(open_list):
-            if hex.f < curr.f:
-                curr = _hex
-                curr_index = index
-        
-        unvisited.pop(curr_index)
-        visited.append(curr)
-
-
-        if curr == goal:
-            route = []
-            curr_hex = curr
-            while curr_hex is not None:
-                route.append(curr_hex.position)
-                curr_hex = curr_hex.parent
-            return path[::-1] #this will reversed the path cause we are going towards goal
-
-
-            child_hexes = []
-
-            for next_position in [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
-
-                    hex_pos = (curr.position[0]+next_position[0], curr.position[1]+next_position[1])
-
-                    # we need an if node here to check if the hex is not out of the board
-
-
-                    # if board[hex_pos[0]]hex_pos[1]] != block_location : ?  to check if its not a block
-
-
-                    new_hex = Node(curr, next_position) #new hex
-
-                    child_hexes.append(new_hex)
-
-
-            #now it is time to check the child hexes 
-
-            for child in child_hexes:
-
-                for visited_child in visited:
-                    if child == visited_child:
-                        continue
-
-                
-                child.g = curr.g + 1
-                #euclidean distance between child and the goal hex  
-                child.h = ((child.position[0] - goal.position[0]) ** 2) + ((child.position[1] - goal.position[1]) ** 2)
-                child.f = child.g + child.h
-
-                #if child hex is in the unvisited list
-                for unvisited_hex in unvisited:
-                    if child == unvisited_hex and child.g > unvisited_hex.g:
-                        continue
-
-
-                unvisited.append(child)
-
-
-
-
-                
-
-
-                        
-def make_graphs(initial, goal): 
-    graphs = []
-    
-    return graphs
+    # Will give final path to follow
+    visited.append(goal)
+    print((visited))
 
 
 def main():
     try:
         with open(sys.argv[1]) as file:
             data = json.load(file)
-            print(data)
+            # print(data)
+            print("got in")
             initials = data['upper']
             goals = data['lower']
             blocked = data['block']
+            make_solution((0, 0), (2,4))
             # print(initials)   
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
