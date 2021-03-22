@@ -17,19 +17,21 @@ from search.util import print_board, print_slide, print_swing
 import search.node as Node
 
 
-def make_solution(inital, goal): 
+def make_solution(inital, goal, blocked): 
     unvisited = PriorityQueue()
     visited = [] 
-    # Format is [(x, y), distance]
+    target = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
+    # Format is [(x, y), distance to goal]
     start = [0, (inital[0], inital[1])]
     unvisited.put(start)
     not_found = True
 
     while not unvisited.empty() and not_found: 
         current = unvisited.get(0)
-        for next_position in [(0, 1), (1, 0), (-1, 0), (0, -1)]: 
-
+        for next_position in target: 
             new_point = (current[1][0] + next_position[0], current[1][1] + next_position[1])
+            if new_point in blocked: 
+                continue
             if (new_point == goal): 
                 not_found = False
                 break
@@ -46,12 +48,18 @@ def main():
     try:
         with open(sys.argv[1]) as file:
             data = json.load(file)
-            # print(data)
-            print("got in")
             initials = data['upper']
             goals = data['lower']
             blocked = data['block']
-            make_solution((0, 0), (2,4))
+            # print("blovked")
+            # print(blocked[0][1])
+            blocked_set = set()
+
+            for block in blocked: 
+                piece = (block[1], block[2])
+                blocked_set.add(piece)
+
+            make_solution((4, 0), (-4,0), blocked_set)
             # print(initials)   
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
