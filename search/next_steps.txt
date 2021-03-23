@@ -1,0 +1,15 @@
+Main thing will be to understand the functions in util.py and how we can run them? 
+As a team I think we divide tasks to get through quicker :) 
+For now heres some things I thought of before we have our meeting: 
+
+HOW TO IDENTIFY PAIRS? 
+    (a) COULD SORT AND IDENTIFY GOAL PAIRS 
+    (b) SORT EACH ONE BY THEIR KEY AND THEN SET GOALS 
+
+NEXT STEPS (FEEL FREE TO ADD MORE)
+1. IDENTIFY GOALS OF EACH PIECE 
+  (a) What data structure to use? 
+  (b) What if a piece has no goal? 
+2. ONCE WE HAVE THE PATH FOR THE PIECE IMPLEMENT 
+  (a) Implement slide 
+  (b) Implement swing

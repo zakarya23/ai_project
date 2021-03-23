@@ -16,7 +16,6 @@ from queue import PriorityQueue
 from search.util import print_board, print_slide, print_swing
 import search.node as Node
 
-
 def make_solution(inital, goal, blocked): 
     unvisited = PriorityQueue()
     visited = [] 
@@ -51,15 +50,12 @@ def main():
             initials = data['upper']
             goals = data['lower']
             blocked = data['block']
-            # print("blovked")
-            # print(blocked[0][1])
             blocked_set = set()
-
             for block in blocked: 
                 piece = (block[1], block[2])
                 blocked_set.add(piece)
 
-            make_solution((4, 0), (-4,0), blocked_set)
+            make_solution((4, -4), (-4,4), blocked_set)
             # print(initials)   
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
