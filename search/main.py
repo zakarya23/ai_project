@@ -67,3 +67,11 @@ def main():
     # Why not start by trying to print this configuration out using the
     # `print_board` helper function? (See the `util.py` source code for
     # usage information).
+    
+    
+    
+    # DONT FORGET THESE
+    # If the hex is occupied by one or more tokens with each symbol,all of the tokens are defeated.
+    # If the hex is occupied by a Rock token, all Scissors tokens there are defeated.
+    # If the hex is occupied by a Scissors token, all Paper tokens there are defeated.
+    # If the hex is occupied by a Paper token, all Rock tokens there are defeated.
