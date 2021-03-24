@@ -6,6 +6,10 @@ HOW TO IDENTIFY PAIRS?
     (a) COULD SORT AND IDENTIFY GOAL PAIRS 
     (b) SORT EACH ONE BY THEIR KEY AND THEN SET GOALS 
 
+
+DICTIONARY_UPPER = {'P': [(r, q), (r1, q1)]} (n)
+DICTIONARY_LOWER = {'R': [(r, q), (r1, q1)]} (m)
+
 NEXT STEPS (FEEL FREE TO ADD MORE)
 1. IDENTIFY GOALS OF EACH PIECE 
   (a) What data structure to use? 

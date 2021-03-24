@@ -20,7 +20,7 @@ def make_solution(inital, goal, blocked):
     unvisited = PriorityQueue()
     visited = [] 
     target = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
-    # Format is [(x, y), distance to goal]
+    # Format is [distance to goal, (x, y)]
     start = [0, (inital[0], inital[1])]
     unvisited.put(start)
     not_found = True
@@ -42,21 +42,46 @@ def make_solution(inital, goal, blocked):
     visited.append(goal)
     print((visited))
 
+def make_dict(values): 
+    final_dict = {} 
+    for value in values: 
+        piece = value[0]
+        r = value[1]
+        q = value[2]
+        if piece in final_dict: 
+            final_dict[piece].append((r, q))
+        else: 
+            final_dict[piece] = [] 
+            final_dict[piece].append((r, q))
+    return final_dict
+
+def make_blocked(values): 
+    blocked_set = set() 
+    for block in values: 
+            piece = (block[1], block[2])
+            blocked_set.add(piece)
+    return blocked_set
+
+def sort_pieces(pieces): 
+    for value in pieces: 
+        value = sorted(value)
+    return pieces
+
 
 def main():
     try:
         with open(sys.argv[1]) as file:
             data = json.load(file)
-            initials = data['upper']
-            goals = data['lower']
-            blocked = data['block']
-            blocked_set = set()
-            for block in blocked: 
-                piece = (block[1], block[2])
-                blocked_set.add(piece)
+            blocked_set = make_blocked(data['block'])
+            upper_pieces = make_dict(data['upper'])
+            lower_pieces = make_dict(data['lower'])
 
-            make_solution((4, -4), (-4,4), blocked_set)
-            # print(initials)   
+            upper_pieces = sort_pieces(upper_pieces.values())
+
+            print(upper_pieces)
+
+            # print(upper_pieces)
+            # make_solution((4, -4), (-4,4), blocked_set)
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
         sys.exit(1)
