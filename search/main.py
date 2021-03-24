@@ -39,8 +39,12 @@ def make_solution(inital, goal, blocked):
         visited.append(current)
 
     # Will give final path to follow
-    visited.append(goal)
-    print((visited))
+    visited.append([0, goal])
+    # Normalising so that we dont need to use distance anymore for further calculations
+    normalised = [] 
+    for route in visited:
+        normalised.append(route[1])
+    return normalised
 
 def make_dict(values): 
     final_dict = {} 
@@ -62,18 +66,28 @@ def make_blocked(values):
             blocked_set.add(piece)
     return blocked_set
 
-
 def sort_pieces(pieces):
     for key in pieces: 
         new_value = sorted(pieces[key])
         pieces[key] = new_value
 
-
+def get_routes(upper, lower, moves, blocked_set, initial, target): 
+    initials = upper[initial]
+    for piece in initials: 
+        p = lower[target]
+        goal = None
+        if len(p) > 0:
+            goal = p.pop()
+            start = initials.pop()
+        if goal: 
+            route = make_solution(start, goal, blocked_set)
+            moves[piece] = route
 
 def main():
     try:
         with open(sys.argv[1]) as file:
             data = json.load(file)
+            moves = {}
             blocked_set = make_blocked(data['block'])
             upper_pieces = make_dict(data['upper'])
             lower_pieces = make_dict(data['lower'])
@@ -81,7 +95,11 @@ def main():
             sort_pieces(upper_pieces)
             sort_pieces(lower_pieces)
 
-            # make_solution((4, -4), (-4,4), blocked_set)
+            get_routes(upper_pieces, lower_pieces, moves, blocked_set, 's', 'p')
+            get_routes(upper_pieces, lower_pieces, moves, blocked_set, 'r', 's')
+            # JUST GOTTA MAKE SURE THEY DONT COLLIDE
+      
+            print(moves)
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
         sys.exit(1)
