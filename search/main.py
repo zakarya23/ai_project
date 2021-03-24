@@ -72,15 +72,17 @@ def sort_pieces(pieces):
         pieces[key] = new_value
 
 def get_routes(upper, lower, moves, blocked_set, initial, target): 
+    if initial not in upper or target not in lower: 
+        return None
     initials = upper[initial]
     for piece in initials: 
         p = lower[target]
         goal = None
         if len(p) > 0:
             goal = p.pop()
-            start = initials.pop()
+            initials.pop()
         if goal: 
-            route = make_solution(start, goal, blocked_set)
+            route = make_solution(piece, goal, blocked_set)
             moves[piece] = route
 
 def main():
@@ -91,12 +93,15 @@ def main():
             blocked_set = make_blocked(data['block'])
             upper_pieces = make_dict(data['upper'])
             lower_pieces = make_dict(data['lower'])
-
+            
+            # Sorting assuming that low pieces are closest to low pieces
             sort_pieces(upper_pieces)
             sort_pieces(lower_pieces)
 
+            # Gets the routes of all 3 of our pieces and stores them in moves
             get_routes(upper_pieces, lower_pieces, moves, blocked_set, 's', 'p')
             get_routes(upper_pieces, lower_pieces, moves, blocked_set, 'r', 's')
+            get_routes(upper_pieces, lower_pieces, moves, blocked_set, 'p', 'r')
             # JUST GOTTA MAKE SURE THEY DONT COLLIDE
       
             print(moves)
