@@ -62,10 +62,12 @@ def make_blocked(values):
             blocked_set.add(piece)
     return blocked_set
 
-def sort_pieces(pieces): 
-    for value in pieces: 
-        value = sorted(value)
-    return pieces
+
+def sort_pieces(pieces):
+    for key in pieces: 
+        new_value = sorted(pieces[key])
+        pieces[key] = new_value
+
 
 
 def main():
@@ -76,11 +78,9 @@ def main():
             upper_pieces = make_dict(data['upper'])
             lower_pieces = make_dict(data['lower'])
 
-            upper_pieces = sort_pieces(upper_pieces.values())
+            sort_pieces(upper_pieces)
+            sort_pieces(lower_pieces)
 
-            print(upper_pieces)
-
-            # print(upper_pieces)
             # make_solution((4, -4), (-4,4), blocked_set)
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
