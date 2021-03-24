@@ -103,7 +103,6 @@ def main():
             get_routes(upper_pieces, lower_pieces, moves, blocked_set, 'r', 's')
             get_routes(upper_pieces, lower_pieces, moves, blocked_set, 'p', 'r')
             # JUST GOTTA MAKE SURE THEY DONT COLLIDE
-      
             print(moves)
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)

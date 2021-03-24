@@ -1,3 +1,7 @@
+LINK FOR CREATING TEST CASES 
+https://codepen.io/mfar/full/LYRzvPj
+
+
 Main thing will be to understand the functions in util.py and how we can run them? 
 As a team I think we divide tasks to get through quicker :) 
 For now heres some things I thought of before we have our meeting: 
