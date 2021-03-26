@@ -3,7 +3,7 @@ https://codepen.io/mfar/full/LYRzvPj
 
 
 26th March 2021 
-- Make Piece Class (K)
+- Make Piece Class (K) Done!
 - Change upper and lower docts key with piece classes (Z)
 - Make a function which will take the movment list and move the piece class to the next piece (K)
   OR 
