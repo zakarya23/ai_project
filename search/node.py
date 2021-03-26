@@ -85,7 +85,7 @@ class Node():
                           #if one of the swings option is in shortest path => move there
         
               
-    def print_mode(turn, curr_position, next_position, type): #type = either slide or swing
+    def print_move(turn, curr_position, next_position, type): #type = either slide or swing
         if type == "slide":
             print("Turn" + turn "SLIDE from" %curr_position + "to" + %next_psotion);
             
