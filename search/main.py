@@ -85,6 +85,50 @@ def get_routes(upper, lower, moves, blocked_set, initial, target):
             route = make_solution(piece, goal, blocked_set)
             moves[piece] = route
 
+def slide(curr_loc):
+        slide_options = adjacents(curr_loc)
+        
+        
+            return slide_options;
+
+    
+    
+    #this will return adjacent hexes of a given hex
+def adjacents(curr_loc):
+        adjacents = []
+        
+        adjacents.append(curr_loc.r + 1; curr_loc.q);
+        adjacents.append(curr_loc.r + 1; curr_loc.q + 1);
+        adjacents.append(curr_loc.r - 1; curr_loc.q);
+        adjacents.append(curr_loc.r - 1; curr_loc.q - 1);
+        adjacents.append(curr_loc.r; curr_loc.q + 1);
+        adjacents.append(curr_loc.r; curr_loc.q - 1);
+        
+        return adjacents;
+        
+        
+    
+    
+    
+    #this will return a list of possible hexes for swing action
+def swing(curr_loc, token_list):
+        swing_options = []
+        adj_list = adjacents(curr_loc) 
+        curr_piece  = Piece()
+       
+        
+        for (r,q) in token_list:
+             curr_piece.r = r;
+             curr_piece.q = q;
+             
+              if (curr_piece.r, curr_piece.q) in adj_list:
+                  for hex in adjacents(curr_piece):
+                       swing_options.append(hex);
+                        
+                    
+                    
+              
+        return swing_options; 
             
 def move(curr_loc, next_loc):
     slide_options = slide(curr_loc);
