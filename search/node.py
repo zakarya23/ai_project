@@ -69,14 +69,19 @@ class Node():
     #this will return a list of possible hexes for swing action
     def swing(node.position, token_list):
         move_list =[]
+        adj_list = []
         curr_node  = Node()
+        for hex in adjacents(node.position):
+            adj_list.append(hex);
               
-              for (r,q) in token_list:
-                    curr_node.position[0] = r;
-                    curr_node.position[0] = q;
-                    
-                    for hex in adjacents(curr_node.position):
-                        move_list.append(hex);
+        
+        for (r,q) in token_list:
+             curr_node.position[0] = r;
+             curr_node.position[0] = q;
+             
+              if curr_node.position in adj_list:
+                  for hex in adjacents(curr_node.position):
+                       move_list.append(hex);
                         
                     
                     
