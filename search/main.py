@@ -134,7 +134,9 @@ def move(curr_loc, next_loc):
     slide_options = slide(curr_loc);
     swing_options = swing(curr_loc, player_pieces);
     
-    if next_loc in swing_otpions:
+    if next_loc in swing_otpions:  #first check the swing as it maybe overlab with slide
+        
+        
         print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q);
     
     esle:
@@ -163,6 +165,15 @@ def main():
             get_routes(upper_pieces, lower_pieces, moves, blocked_set, 'p', 'r')
             # JUST GOTTA MAKE SURE THEY DONT COLLIDE
             print(moves)
+            
+            
+            turn = 0;
+            running = True
+            while(running):
+                #implement the movements for all the pieces
+                #print the slide and swing actions and popo out the item from the list after each movement
+                
+    
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
         sys.exit(1)
