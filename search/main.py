@@ -85,6 +85,21 @@ def get_routes(upper, lower, moves, blocked_set, initial, target):
             route = make_solution(piece, goal, blocked_set)
             moves[piece] = route
 
+            
+def move(curr_loc, next_loc):
+    slide_options = slide(curr_loc);
+    swing_options = swing(curr_loc, player_pieces);
+    
+    if next_loc in swing_otpions:
+        print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q);
+    
+    esle:
+        print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q);
+        
+        #don't forget to pop out the item from the movement list so next time this function will check the next move
+        
+    
+    
 def main():
     try:
         with open(sys.argv[1]) as file:
