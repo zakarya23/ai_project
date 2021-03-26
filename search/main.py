@@ -15,10 +15,15 @@ from queue import PriorityQueue
 # then import from them like this:
 from search.util import print_board, print_slide, print_swing
 import search.node as Node
+from search.piece import Piece
+# import search.piece as Piece
+# import search.test as Test
 
 def make_solution(inital, goal, blocked): 
     unvisited = PriorityQueue()
     visited = [] 
+    # visited.append([initial])
+    
     target = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
     # Format is [distance to goal, (x, y)]
     start = [0, (inital[0], inital[1])]
@@ -71,7 +76,8 @@ def sort_pieces(pieces):
         new_value = sorted(pieces[key])
         pieces[key] = new_value
 
-def get_routes(upper, lower, moves, blocked_set, initial, target): 
+# ADD THE ID OF PIECE TOO 
+def get_routes(upper, lower, pieces, blocked_set, initial, target): 
     if initial not in upper or target not in lower: 
         return None
     initials = upper[initial]
@@ -83,65 +89,51 @@ def get_routes(upper, lower, moves, blocked_set, initial, target):
             initials.pop()
         if goal: 
             route = make_solution(piece, goal, blocked_set)
-            moves[piece] = route
+            # moves[piece] = route
+            piece = Piece(piece, route, initial)
+            pieces.append(piece)
+    # print(len(pieces))
+    # print(moves)
 
 def slide(curr_loc):
         slide_options = adjacents(curr_loc)
-        
-        
-            return slide_options;
+        return slide_options
 
-    
-    
-    #this will return adjacent hexes of a given hex
+#this will return adjacent hexes of a given hex
 def adjacents(curr_loc):
+    # FROM ZAKARYA: HOW DO WE MAKE SURE THEY ON THE BOARD? 
         adjacents = []
-        
-        adjacents.append(curr_loc.r + 1; curr_loc.q);
-        adjacents.append(curr_loc.r + 1; curr_loc.q + 1);
-        adjacents.append(curr_loc.r - 1; curr_loc.q);
-        adjacents.append(curr_loc.r - 1; curr_loc.q - 1);
-        adjacents.append(curr_loc.r; curr_loc.q + 1);
-        adjacents.append(curr_loc.r; curr_loc.q - 1);
-        
-        return adjacents;
-        
-        
+        adjacents.append(curr_loc.r + 1, curr_loc.q)
+        adjacents.append(curr_loc.r + 1, curr_loc.q + 1)
+        adjacents.append(curr_loc.r - 1, curr_loc.q)
+        adjacents.append(curr_loc.r - 1, curr_loc.q - 1)
+        adjacents.append(curr_loc.r, curr_loc.q + 1)
+        adjacents.append(curr_loc.r, curr_loc.q - 1)
+        return adjacents
+            
+#this will return a list of possible hexes for swing action
+# def swing(curr_loc, token_list):
+#     swing_options = []
+#     adj_list = adjacents(curr_loc) 
+#     curr_piece  = Piece()
     
-    
-    
-    #this will return a list of possible hexes for swing action
-def swing(curr_loc, token_list):
-        swing_options = []
-        adj_list = adjacents(curr_loc) 
-        curr_piece  = Piece()
-       
-        
-        for (r,q) in token_list:
-             curr_piece.r = r;
-             curr_piece.q = q;
-             
-              if (curr_piece.r, curr_piece.q) in adj_list:
-                  for hex in adjacents(curr_piece):
-                       swing_options.append(hex);
-                        
-                    
-                    
-              
-        return swing_options; 
+#     for (r,q) in token_list:
+#             curr_piece.r = r
+#             curr_piece.q = q
+            
+#             if (curr_piece.r, curr_piece.q) in adj_list:
+#                 for hex in adjacents(curr_piece):
+#                     swing_options.append(hex)   
+#     return swing_options
             
 def move(curr_loc, next_loc):
-    slide_options = slide(curr_loc);
-    swing_options = swing(curr_loc, player_pieces);
+    slide_options = slide(curr_loc)
+    swing_options = swing(curr_loc, player_pieces)
     
-    if next_loc in swing_otpions:  #first check the swing as it maybe overlab with slide
-        
-        
-        print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q);
-    
-    esle:
-        print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q);
-        
+    if next_loc in swing_options:  # first check the swing as it maybe overlab with slide
+        print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q)
+    else:
+        print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q)
         #don't forget to pop out the item from the movement list so next time this function will check the next move
         
     
@@ -150,7 +142,8 @@ def main():
     try:
         with open(sys.argv[1]) as file:
             data = json.load(file)
-            moves = {}
+            # Stores all the pieces
+            pieces = [] 
             blocked_set = make_blocked(data['block'])
             upper_pieces = make_dict(data['upper'])
             lower_pieces = make_dict(data['lower'])
@@ -159,21 +152,46 @@ def main():
             sort_pieces(upper_pieces)
             sort_pieces(lower_pieces)
 
-            # Gets the routes of all 3 of our pieces and stores them in moves
-            get_routes(upper_pieces, lower_pieces, moves, blocked_set, 's', 'p')
-            get_routes(upper_pieces, lower_pieces, moves, blocked_set, 'r', 's')
-            get_routes(upper_pieces, lower_pieces, moves, blocked_set, 'p', 'r')
+            # Gets the routes of all 3 kinds of pieces and stores them in moves
+            get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 's', 'p')
+            get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 'r', 's')
+            get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 'p', 'r')
             # JUST GOTTA MAKE SURE THEY DONT COLLIDE
-            print(moves)
+            # [(1, -1), (0, -1), (-1, 0), (-1, 1)]
+            # [(-3, 2), (-2, 1), (-1, 0), (0, -1), (1, -1)]
             
-            
-            turn = 0;
+  
+            turn = 0
             running = True
+            total = len(pieces)
+
+
+            
             while(running):
+                for i in range(len(pieces)): 
+                    piece = pieces[i]
+                    moves = piece.movements
+                    if (len(moves) == 1): 
+                        return None
+
+                    
+            # for piece in pieces: 
+            #     if (len(piece.movements) == 1): 
+            #         (piece.movements).pop()
+            #     elif (len(piece.movements) > 0):
+            #         inital = (piece.movements).pop()
+            #         next = (piece.movements).pop()
+            #         print_slide(turn, inital[0], next[0], inital[1], next[1])
+            # turn += 1
+                
+               
+
+                # break
+
+                    
+                # break
                 #implement the movements for all the pieces
                 #print the slide and swing actions and popo out the item from the list after each movement
-                
-    
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
         sys.exit(1)
