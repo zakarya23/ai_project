@@ -2,6 +2,18 @@ LINK FOR CREATING TEST CASES
 https://codepen.io/mfar/full/LYRzvPj
 
 
+26th March 2021 
+- Make Piece Class (K)
+- Change upper and lower docts key with piece classes (Z)
+- Make a function which will take the movment list and move the piece class to the next piece (K)
+  OR 
+  - Makr function which takes initial and next moment tuple to move to and makes that move into the board_dict? 
+
+- A while loop to keep track of the turns 
+- Print slides 
+ 
+
+
 Main thing will be to understand the functions in util.py and how we can run them? 
 As a team I think we divide tasks to get through quicker :) 
 For now heres some things I thought of before we have our meeting: 
