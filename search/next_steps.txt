@@ -6,13 +6,13 @@ PROBLEMS RIGHT NOW
 
 26th March 2021 
 - Make Piece Class (K) Done!
-- Change upper and lower docts key with piece classes (Z)
-- Make a function which will take the movment list and move the piece class to the next piece (K)
+- Change upper and lower docts key with piece classes (Z) Done
+- Make a function which will take the movment list and move the piece class to the next piece (K) Done
   OR 
   - Makr function which takes initial and next moment tuple to move to and makes that move into the board_dict? 
 
-- A while loop to keep track of the turns 
-- Print slides 
+- A while loop to keep track of the turns Done
+- Print slides Done
  
 
 
