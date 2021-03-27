@@ -201,7 +201,7 @@ def main():
                         # Update the Pieces current position 
                         piece.current = p2
                     piece.index += 1
-                turn += 1
+                turn += 1  
                     
                 # Check after loop if any indexes need to be removed and remove them
                 if len(remove_index) > 0: 
