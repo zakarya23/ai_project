@@ -1,8 +1,9 @@
 class Piece:
-    def __init__(self, current, movements, name):
+    def __init__(self, current, movements, name, index):
         self.current = current
         self.movements = movements
         self.name = name
+        self.index = index
 
     # def distance_from_origin(self):
     #     return((self.r_c ** 2) + (self.q_c ** 2)) ** 0.5

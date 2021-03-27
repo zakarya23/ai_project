@@ -1,6 +1,8 @@
 LINK FOR CREATING TEST CASES 
 https://codepen.io/mfar/full/LYRzvPj
 
+PROBLEMS RIGHT NOW 
+- CANT LET OTHERS THAT DONT HAVE GOAL SIT IDOL
 
 26th March 2021 
 - Make Piece Class (K) Done!
