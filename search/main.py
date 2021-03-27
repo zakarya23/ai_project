@@ -16,14 +16,10 @@ from queue import PriorityQueue
 from search.util import print_board, print_slide, print_swing
 import search.node as Node
 from search.piece import Piece
-# import search.piece as Piece
-# import search.test as Test
 
 def make_solution(inital, goal, blocked): 
     unvisited = PriorityQueue()
     visited = [] 
-    # visited.append([initial])
-    
     target = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
     # Format is [distance to goal, (x, y)]
     start = [0, (inital[0], inital[1])]
@@ -153,15 +149,14 @@ def main():
             get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 'r', 's')
             get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 'p', 'r')
             # JUST GOTTA MAKE SURE THEY DONT COLLIDE
+
+            # HAVE THESE FOR REFERENCE FOR NOW 
             # [(1, -1), (0, -1), (-1, 0), (-1, 1)]
             # [(-3, 2), (-2, 1), (-1, 0), (0, -1), (1, -1)]
             
-  
             turn = 0
             running = True
-            total = len(pieces)
             index = 0
-
             # We remove at the end so that we dont disturb any loops
             remove_index = [] 
             while(running):
@@ -177,6 +172,8 @@ def main():
                         p = moves[index]
                         p2 = moves[index+1]
                         print_slide(turn, p[0], p[1], p2[0], p2[1])
+                        # Update the Pieces current position 
+                        piece.current = p2
                     
                 # Check after loop if any indexes need to be removed and remove them
                 if len(remove_index) > 0: 
