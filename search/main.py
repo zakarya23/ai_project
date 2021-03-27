@@ -108,8 +108,8 @@ def slide(curr_loc):
         return slide_options
 
 #this will return adjacent hexes of a given hex
-def adjacents(curr_loc):
-    # FROM ZAKARYA: HOW DO WE MAKE SURE THEY ON THE BOARD? 
+def adjacents(curr_loc, max_size):
+    # FROM ZAKARYA: HOW DO WE MAKE SURE THEY ON THE BOARD? SOLVED
     adjacents = []
     adjacents.append(curr_loc.r + 1, curr_loc.q)
     adjacents.append(curr_loc.r + 1, curr_loc.q + 1)
@@ -117,6 +117,10 @@ def adjacents(curr_loc):
     adjacents.append(curr_loc.r - 1, curr_loc.q - 1)
     adjacents.append(curr_loc.r, curr_loc.q + 1)
     adjacents.append(curr_loc.r, curr_loc.q - 1)
+    for loc in adjacents:
+        if loc.r > max_size || loc.r < max_size || loc.q > max_size || loc.q < max_size:
+            adjacents.pop(loc)
+    
     return adjacents
             
 #this will return a list of possible hexes for swing action
