@@ -76,7 +76,6 @@ def sort_pieces(pieces):
         new_value = sorted(pieces[key])
         pieces[key] = new_value
 
-# ADD THE ID OF PIECE TOO 
 def get_routes(upper, lower, pieces, blocked_set, initial, target): 
     if initial not in upper or target not in lower: 
         return None
@@ -89,11 +88,8 @@ def get_routes(upper, lower, pieces, blocked_set, initial, target):
             initials.pop()
         if goal: 
             route = make_solution(piece, goal, blocked_set)
-            # moves[piece] = route
             piece = Piece(piece, route, initial)
             pieces.append(piece)
-    # print(len(pieces))
-    # print(moves)
 
 def slide(curr_loc):
         slide_options = adjacents(curr_loc)
@@ -102,14 +98,14 @@ def slide(curr_loc):
 #this will return adjacent hexes of a given hex
 def adjacents(curr_loc):
     # FROM ZAKARYA: HOW DO WE MAKE SURE THEY ON THE BOARD? 
-        adjacents = []
-        adjacents.append(curr_loc.r + 1, curr_loc.q)
-        adjacents.append(curr_loc.r + 1, curr_loc.q + 1)
-        adjacents.append(curr_loc.r - 1, curr_loc.q)
-        adjacents.append(curr_loc.r - 1, curr_loc.q - 1)
-        adjacents.append(curr_loc.r, curr_loc.q + 1)
-        adjacents.append(curr_loc.r, curr_loc.q - 1)
-        return adjacents
+    adjacents = []
+    adjacents.append(curr_loc.r + 1, curr_loc.q)
+    adjacents.append(curr_loc.r + 1, curr_loc.q + 1)
+    adjacents.append(curr_loc.r - 1, curr_loc.q)
+    adjacents.append(curr_loc.r - 1, curr_loc.q - 1)
+    adjacents.append(curr_loc.r, curr_loc.q + 1)
+    adjacents.append(curr_loc.r, curr_loc.q - 1)
+    return adjacents
             
 #this will return a list of possible hexes for swing action
 # def swing(curr_loc, token_list):
@@ -164,32 +160,35 @@ def main():
             turn = 0
             running = True
             total = len(pieces)
+            index = 0
 
-
-            
+            # We remove at the end so that we dont disturb any loops
+            remove_index = [] 
             while(running):
-                for i in range(len(pieces)): 
+                # Go through all pieces
+                for i in range(0, len(pieces)): 
                     piece = pieces[i]
                     moves = piece.movements
-                    if (len(moves) == 1): 
-                        return None
-
+                    # If we have reached goal means we no longer need to print so we add it 
+                    # to indexes that need to be removed
+                    if (len(moves) - 1 == index): 
+                        remove_index.append(i)
+                    else:
+                        p = moves[index]
+                        p2 = moves[index+1]
+                        print_slide(turn, p[0], p[1], p2[0], p2[1])
                     
-            # for piece in pieces: 
-            #     if (len(piece.movements) == 1): 
-            #         (piece.movements).pop()
-            #     elif (len(piece.movements) > 0):
-            #         inital = (piece.movements).pop()
-            #         next = (piece.movements).pop()
-            #         print_slide(turn, inital[0], next[0], inital[1], next[1])
-            # turn += 1
-                
-               
+                # Check after loop if any indexes need to be removed and remove them
+                if len(remove_index) > 0: 
+                    for i in remove_index: 
+                        pieces.pop(i)
+                        remove_index.pop()
+                # If theres no more pieces left we exit 
+                if len(pieces) == 0: 
+                    running = False
+                turn += 1
+                index += 1
 
-                # break
-
-                    
-                # break
                 #implement the movements for all the pieces
                 #print the slide and swing actions and popo out the item from the list after each movement
     except IndexError:
