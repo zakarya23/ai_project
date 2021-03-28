@@ -1,0 +1,22 @@
+1.How did you formulate this game as a search problem? Explain your view of the problem in terms ofstates, actions, goal tests, and path costs, as relevant.
+
+A: In the game of RoPaSci 360, the player needs to aim for the oponent pieces with win chances, for example, if your piece is "Paper" the aim/goal 
+for that piece sould be "Rock". The same strategy applies to all three pieces. Finding the goal(inferior oponent piece) is where the search algorithm plays a rule. 
+By applying our search algorithm, we will determine the path cost and the shortest possible path to reach the goal and then start moving all of our pieces towards it 
+every single turn. Defining the name of opponent pieces (R,P,S) and if there are block(s) in the path are crucially important for the algorithm to understand and 
+reading the board map. 
+
+
+
+2.What search algorithm does your program use to solve this problem, and why did you choose thisalgorithm? Comment on the algorithm’s eﬀiciency,
+completeness, and optimality. If you have developedheuristics to inform your search, explain them and comment on their admissibility.
+
+A:
+
+
+
+
+3.How do the features of the starting configuration (the position and number of tokens) impact yourprogram’s time and space requirements? For example, 
+discuss their connection with the branchingfactor and search tree depth and how these affect the time and space complexity of your algorithm.
+
+A: 
