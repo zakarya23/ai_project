@@ -4,7 +4,7 @@ A: In the game of RoPaSci 360, the player needs to aim for the oponent pieces wi
 for that piece sould be "Rock". The same strategy applies to all three pieces. Finding the goal(inferior oponent piece) is where the search algorithm plays a rule. 
 By applying our search algorithm, we will determine the path cost and the shortest possible path to reach the goal and then start moving all of our pieces towards it 
 every single turn. Defining the name of opponent pieces (R,P,S) and if there are block(s) in the path are crucially important for the algorithm to understand and 
-reading the board map. 
+reading the board map. From our perspective, the best game player algorithm is the one who win the opponent in majority of cases with high efficiency and high speed. To achieve this state, we need to develope an efficient algorithm similar to unform cost search for our game. This will help us play the game more rapidly as well as increasing efficienty. 
 
 
 
