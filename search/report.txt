@@ -11,7 +11,9 @@ reading the board map.
 2.What search algorithm does your program use to solve this problem, and why did you choose thisalgorithm? Comment on the algorithm’s eﬀiciency,
 completeness, and optimality. If you have developedheuristics to inform your search, explain them and comment on their admissibility.
 
-A: We have used unifrom cost search (A*) algorithm to solve the search problem. UCS algorithm is the most efficient algorithm for this problem according to our search as it is only calculate the cost between current node and the goal while Dijkstra's algorithm calculate the shortest path between the current node and every other node in the path. 
+A: We have used unifrom cost search (A*) algorithm to solve the search problem. UCS algorithm is the most efficient algorithm for this problem according to our 
+search as it is only calculate the cost between current node and the goal while Dijkstra's algorithm calculate the shortest path between the current node and every 
+other node in the path. 
 
 
 
