@@ -72,10 +72,35 @@ def sort_pieces(pieces):
         new_value = sorted(pieces[key])
         pieces[key] = new_value
 
-def get_routes(upper, lower, pieces, blocked_set, initial, target): 
-    if initial not in upper or target not in lower: 
+def random_route(point, blocked_set, pieces): 
+    target = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
+    route = [] 
+    route.append(point)
+    R_RANGE = (-4, 4)
+    Q_RANGE = (-4, 4)
+    for next_position in target: 
+        new_point = (point[0] + next_position[0], point[1] + next_position[1]) 
+        if new_point in blocked_set or (new_point[0] > R_RANGE[1]) or (new_point[0] < R_RANGE[0]) or (new_point[1] > Q_RANGE[1]) or (new_point[1] < Q_RANGE[0]): 
+            continue
+        else: 
+            route.append(new_point)
+    return sorted(route)
+
+
+def get_routes(upper, lower, pieces, blocked_set, initial, target):
+    if initial not in upper and target not in lower: 
+        return None 
+    elif target not in lower: 
+        points = upper[initial]
+        # Find any adjecent block that isnt blocked or taken and then move it there. 
+        for p in points: 
+            route = random_route(p, blocked_set, pieces)
+            # goal = route[-1]
+            piece = Piece(p, route, initial, 0)
+            pieces.append(piece)
         return None
     initials = upper[initial]
+
     for piece in initials: 
         all_targets = lower[target]
         # print(all_targets)
@@ -88,41 +113,6 @@ def get_routes(upper, lower, pieces, blocked_set, initial, target):
             piece = Piece(piece, route, initial, 0)
             pieces.append(piece)
 
-# piece = inital 
-# goal is target
-def get_new_route(pieces, initial, lower, name, target, blocked_set): 
-    all_targets = lower[target]
-    goal = None
-    if (len(all_targets) > 0): 
-        goal = all_targets.pop()
-    if goal: 
-        route = make_solution(initial, goal, blocked_set)
-        piece = Piece(initial, route, name, 0)
-        pieces.append(piece)
-
-    
-
-
-def slide(curr_loc):
-        slide_options = adjacents(curr_loc)
-        return slide_options
-
-#this will return adjacent hexes of a given hex
-def adjacents(curr_loc, max_size):
-    # FROM ZAKARYA: HOW DO WE MAKE SURE THEY ON THE BOARD? SOLVED
-    adjacents = []
-    adjacents.append(curr_loc.r + 1, curr_loc.q)
-    adjacents.append(curr_loc.r + 1, curr_loc.q + 1)
-    adjacents.append(curr_loc.r - 1, curr_loc.q)
-    adjacents.append(curr_loc.r - 1, curr_loc.q - 1)
-    adjacents.append(curr_loc.r, curr_loc.q + 1)
-    adjacents.append(curr_loc.r, curr_loc.q - 1)
-    for loc in adjacents:
-        if loc.r > max_size || loc.r < max_size || loc.q > max_size || loc.q < max_size:
-            adjacents.pop(loc)
-    
-    return adjacents
-            
 #this will return a list of possible hexes for swing action
 # def swing(curr_loc, token_list):
 #     swing_options = []
@@ -138,99 +128,132 @@ def adjacents(curr_loc, max_size):
 #                     swing_options.append(hex)   
 #     return swing_options
             
-def move(curr_loc, next_loc):
-    slide_options = slide(curr_loc)
-    swing_options = swing(curr_loc, player_pieces)
-    
-    if next_loc in swing_options:  # first check the swing as it maybe overlab with slide
-        print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q)
+def get_new_route(turn, piece, lower_pieces, blocked_set):
+    pairs = {'s': 'p', 'p' : 'r', 'r' : 's'}
+    all_targets = lower_pieces[pairs[piece.name]]
+    # print(all_targets)
+    goal = None
+    if len(all_targets) > 0:
+        goal = all_targets.pop()
+        # initials.pop()
+    if goal: 
+        route = make_solution(piece.current, goal, blocked_set)
+        piece.current = route.pop(0)
+        second = route[0]
+        print_slide(turn, piece.current[0], piece.current[1], second[0], second[1])
+        piece.current = second
+        piece.movements = route
+        return None
+
+def all_goals(goals): 
+    '''
+    Stores all the pieces we need to kill 
+    '''
+    targets = [] 
+    for goal in goals: 
+        targets.append((goal[1], goal[2]))
+    return targets 
+
+def future_directions(turn, piece, pieces, lower_pieces, blocked_set, to_kill):
+    pairs = {'s': 'p', 'p' : 'r', 'r' : 's'}
+    if pairs[piece.name] not in lower_pieces: 
+        # Make random route for the piece 
+        get_new_random(turn, pieces, piece, blocked_set)
+        return None
     else:
-        print_swing(curr_loc.r, curr_loc.q, next_loc.r, next_loc.q)
-        #don't forget to pop out the item from the movement list so next time this function will check the next move
-        
-    
-    
+        if (piece.current in to_kill):
+            # print("KIL") SHOULDVE FINISHED ON 12 
+            # print("KIL")
+            index = to_kill.index(piece.current)
+            to_kill.pop(index)
+        target_pieces = lower_pieces[pairs[piece.name]]
+        if len(target_pieces) > 0: 
+            # Means still more pieces to target 
+            get_new_route(turn, piece, lower_pieces, blocked_set)
+            return None 
+        elif len(to_kill) == 0: 
+            return None
+        else: 
+            # No targets left so random movement
+            get_new_random(turn, pieces, piece, blocked_set)
+            return None
+
+    return None
+
+def initialise_routes(upper_pieces, lower_pieces, pieces, blocked_set): 
+    # Sorting assuming that low pieces are closest to low pieces
+    sort_pieces(upper_pieces)
+    sort_pieces(lower_pieces)
+    get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 's', 'p')
+    get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 'r', 's')
+    get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 'p', 'r')
+
+# CHANGED
+def get_new_random(turn, pieces, piece, blocked_set):
+    route = random_route(piece.current, blocked_set, pieces)
+    piece.current = route.pop(0)
+    second = route[0]
+    print_slide(turn, piece.current[0], piece.current[1], second[0], second[1])
+    piece.current = second
+    piece.movements = route
+    return None
+
 def main():
     try:
         with open(sys.argv[1]) as file:
             data = json.load(file)
-            # Stores all the pieces
+            R_RANGE = (-4, 4)
+            Q_RANGE = (-4, 4)
             pieces = [] 
             blocked_set = make_blocked(data['block'])
             upper_pieces = make_dict(data['upper'])
             lower_pieces = make_dict(data['lower'])
-            
-            # Sorting assuming that low pieces are closest to low pieces
-            sort_pieces(upper_pieces)
-            sort_pieces(lower_pieces)
-
+            to_kill = all_goals(data['lower'])
+            # print(lower_pieces)
             # Gets the routes of all 3 kinds of pieces and stores them in moves
-            get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 's', 'p')
-            get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 'r', 's')
-            get_routes(upper_pieces, lower_pieces, pieces, blocked_set, 'p', 'r')
+            initialise_routes(upper_pieces, lower_pieces, pieces, blocked_set)
+            # print(lower_pieces)
             # JUST GOTTA MAKE SURE THEY DONT COLLIDE
-
-            # HAVE THESE FOR REFERENCE FOR NOW 
-            # [(1, -1), (0, -1), (-1, 0), (-1, 1)]
-            # [(-3, 2), (-2, 1), (-1, 0), (0, -1), (1, -1)]
             pairs = {'s': 'p', 'p' : 'r', 'r' : 's'}
-            
-            turn = 0
+            turn = 1
             running = True
             # We remove at the end so that we dont disturb any loops
-            remove_index = [] 
+            remove_index = []
+            i = 0 
             while(running):
-                # Go through all pieces
-                for i in range(0, len(pieces)): 
-                    piece = pieces[i]
-                    moves = piece.movements
-                    # If we have reached goal means we no longer need to print so we add it 
-                    # to indexes that need to be removed
-                    if (len(moves) - 1 == piece.index):
-                        target = pairs[piece.name]
-                        if (len(lower_pieces[target]) > 0): 
-                            turn -= 1
-                            remove_index.append(i)
-                            get_new_route(pieces, piece.current, lower_pieces, piece.name, target, blocked_set)
-                        else: 
-                            remove_index.append(i)
-                    else:
-                        p = moves[piece.index]
-                        p2 = moves[piece.index+1]
-                        print_slide(turn, p[0], p[1], p2[0], p2[1])
-                        # Update the Pieces current position 
-                        piece.current = p2
-                    piece.index += 1
-                turn += 1  
-                    
-                # Check after loop if any indexes need to be removed and remove them
-                if len(remove_index) > 0: 
-                    for i in remove_index: 
-                        pieces.pop(i)
-                        remove_index.pop()
-                # If theres no more pieces left we exit 
-                if len(pieces) == 0: 
-                    running = False
-                
-             
+                for piece in pieces: 
+                    movements = piece.movements
+                    if len(to_kill) == 0: 
+                        running = False
+                        break
 
-                #implement the movements for all the pieces
-                #print the slide and swing actions and popo out the item from the list after each movement
+                    if (len(movements) == 1):
+                        point = movements[0]
+                        piece.current = point
+                        # Make new route for it based on whether it has any more targets 
+                        # print("P")
+                        future_directions(turn, piece, pieces, lower_pieces, blocked_set, to_kill)
+                        # print("A")
+                   
+                    else: 
+                        first = movements.pop(0)
+                        next = movements[0]
+                        print_slide(turn, first[0], first[1], next[0], next[1])
+                        # EXCEPT OF NEXT IT SHOULD BE THE GOAL OF THE PIECE 
+                        if next in to_kill: 
+                            index = to_kill.index(next)
+                            to_kill.pop(index) 
+                        if len(to_kill) == 0: 
+                            running = False
+                            break     
+
+                        piece.current = next
+
+                    # movements.pop(0) 
+                i += 1
+                turn += 1
+
+                
     except IndexError:
         print("usage: python3 -m search path/to/input.json", file=sys.stderr)
         sys.exit(1)
-
-    # TODO:
-    # Find and print a solution to the board configuration described
-    # by `data`.
-    # Why not start by trying to print this configuration out using the
-    # `print_board` helper function? (See the `util.py` source code for
-    # usage information).
-    
-    
-    
-    # DONT FORGET THESE
-    # If the hex is occupied by one or more tokens with each symbol,all of the tokens are defeated.
-    # If the hex is occupied by a Rock token, all Scissors tokens there are defeated.
-    # If the hex is occupied by a Scissors token, all Paper tokens there are defeated.
-    # If the hex is occupied by a Paper token, all Rock tokens there are defeated.
