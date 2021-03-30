@@ -2,6 +2,7 @@
 COMP30024 Artificial Intelligence, Semester 1, 2021
 Project Part A: Searching
 Authors: Zakarya & Kamyar
+Group: DOMINATORS
 """
 import sys
 import json
