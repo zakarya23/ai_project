@@ -1,11 +1,18 @@
 from search.piece import Piece
 
 def sort_pieces(pieces):
+    '''
+    Just sorts the pieces with their values
+    '''
     for key in pieces: 
         new_value = sorted(pieces[key])
         pieces[key] = new_value
 
 def format_input(data): 
+    '''
+    Formats the json file into dicts and lists to make it 
+    easy to work with
+    '''
     blocked_set = make_blocked(data['block'])
     upper_pieces = make_dict(data['upper'])
     lower_pieces = make_dict(data['lower'])
@@ -22,6 +29,9 @@ def all_goals(goals):
     return targets
 
 def make_dict(values): 
+    '''
+    Returns a formatted dict of whatever key, value pairs we provide
+    '''
     final_dict = {} 
     for value in values: 
         piece = value[0]
@@ -35,6 +45,10 @@ def make_dict(values):
     return final_dict
 
 def make_blocked(values): 
+    '''
+    Makes a set of all the blocked pieces so we can 
+    easily check if a specific location is blocked or not
+    '''
     blocked_set = set() 
     for block in values: 
             piece = (block[1], block[2])

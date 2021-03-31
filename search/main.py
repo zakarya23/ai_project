@@ -16,7 +16,9 @@ def main():
     try:
         with open(sys.argv[1]) as file:
             data = json.load(file)
+            # Will be storing all the pieces we start of with 
             pieces = [] 
+            # Our pieces, opponents pieces, blocked pieces, and all the ones we need to kill. 
             upper_pieces, lower_pieces, blocked_set, to_kill = format_input(data)
             # Gets the routes of all 3 kinds of pieces and stores them in moves
             initialise_routes(upper_pieces, lower_pieces, pieces, blocked_set)
