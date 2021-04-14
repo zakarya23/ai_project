@@ -9,7 +9,7 @@
 
 ------------------------------------------------------------------------------------
 
-- Every 2-3 days to make sure that eveyrthing is working fine and we are up to date. Also check each others code on git and try to understand it. 
+- We will arrange a Zoom or Google meeting Every 2-3 days to make sure that eveyrthing is working fine and we are up to date. Also check each others code on git and try to understand it. 
 
 --------------------------------------------------------------------------------------------
 
