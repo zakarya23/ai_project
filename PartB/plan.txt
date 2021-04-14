@@ -1,5 +1,5 @@
 
-- First where planning on making our players pieces move around randomly before focussing on the opponent 
+- First we are planning on making our players pieces move around randomly before focussing on the opponent 
 - AND then once we are done with that, we will try to implement algorithms such as the adversial search to imporve our game 
 
 --------------------------------------------------------------------------------------
@@ -8,14 +8,14 @@
 
 ------------------------------------------------------------------------------------
 
-- Every 2-3 days to make sure that eveyrthing is working fine and we are up to date. Also check each others code on git and try to understand it. 
+- We will arrange a Zoom or Google meeting Every 2-3 days to make sure that eveyrthing is working fine and we are up to date. Also check each others code on git and try to understand it. 
 
 --------------------------------------------------------------------------------------------
 
 Deadlines for other subjects: 
-	- 23rd April 2020 
-	- 21st April 2020 
-	- 13th April 2020
+	- WIT 23rd April 2020 
+	- SMD 21st April 2020 
+	- CS mid-sem 13th April 2020
 	- CS project 2 
 	- WIT project 3
 	- WIT project 4
