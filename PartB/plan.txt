@@ -1,10 +1,11 @@
 
-- First where planning on making our players pieces move around randomly before focussing on the opponent 
-- AND then once we are done with that, we will try to implement algorithms such as the adversial search to imporve our game 
+- First we are planning on making our players pieces move around randomly before focussing on the opponent 
+- AND then once we are done with that, we will try to implement algorithms such as the adversial search to improve our game 
 
 --------------------------------------------------------------------------------------
 
-- We will first come up with a plan on how to implement the player or algorithm in code and then one of us will take the responsibility of implenting it in the code so taht both of us have the codeing contributoion s well the planning . 
+- We will first come up with a plan on how to implement the player or algorithm in code and then one of us will take the responsibility of implenting it in the code so that both of us have the coding contribution as well as the planning.
+ And ofcourse, if one of us is stuck then we shall do calls do discuss how we would make something work 
 
 ------------------------------------------------------------------------------------
 
@@ -16,7 +17,8 @@ Deadlines for other subjects:
 	- 23rd April 2020 
 	- 21st April 2020 
 	- 13th April 2020
-	- CS project 2 
-	- WIT project 3
-	- WIT project 4
-	- SMD project 2  
+	- CS project 2 (NA)
+	- Week 7 Friday 
+	- Week 9 Friday 
+    - Week 12 Friday
+	- SMD project 2 (NA) 
