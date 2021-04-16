@@ -17,6 +17,7 @@ class Player:
         of the game, select an action to play this turn.
         """
         # put your code here
+        return ("THROW", "s", (0, 0))
     
     def update(self, opponent_action, player_action):
         """
