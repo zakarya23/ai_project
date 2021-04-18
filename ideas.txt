@@ -1,0 +1,7 @@
+- How to measure utility? (REWARD)
+    - If we lost a piece or not? 
+    - Like in chess a linear weight of features. 
+
+- Keep track of board 
+- Which algorithm, machine learning or no ML? 
+- firt piece random and then use board state to choose next ones
