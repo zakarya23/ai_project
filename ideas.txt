@@ -5,3 +5,38 @@
 - Keep track of board 
 - Which algorithm, machine learning or no ML? 
 - firt piece random and then use board state to choose next ones
+-------- Ideas ---------
+ - We decided to go with MINIMAX algo and adding alpha-beta feature afterwards
+ - How to implement the MINIMAX:
+    - init the game boards
+    - Separate function to check the validity of each move 
+    - Separate function to check if the game ended or not
+    - The AI algo should maxmisie our player's score and minimise the opponet's score so:
+        - a maximising function to maximise our score
+        - a minimising function to minimise the opponent's score
+   - a play function to play the game agaisnt our opponent
+   - a main function to initiate the game
+   
+------ Minimax Imlementation -------
++ The root of the Tree will be the starting node_location each time and the deepst nodes will be the finanl postition 
+
++ Because of that, the tree will be too large once we got more players so we have to start alpha-beta pruning once we done with the minimax func()
+
++ we could set -1 as the worst case but we can also use -2 to ensure the worst of the worst
+
+ + I think it is better to use the matrix implementation discussed in the lecture which is:
+    - we have a matrix for each node like {(r, p, s), (r, p, s), (r, p, s) (-1, 0, 1) -1 = loss, 0 = tie or empty block, 1 = win this attributes will also define       our utility function(eg. we have rock and our opponet have paper, so if we move to the paper block the value will be -1, if we move to scissor                     block the value will be 1 and if we move to an empty block or a block filled by another rock we get 0 for the value).
+    - running our minimax functions should get as much 1 moves as possible for the best utility and more wins
+    - watch the last 20 min of  Tues lecture and YouTube to understand the algo
+    
++ I is also possible to think of utility as more complicated function than -1,0,1 to score every single move and always choose the one with highest score an 
+example is when we have multiple choices of empty blocks or opponent's blocks (eg. we have rock and opponet has two scissors that we can defeat, which one should we go for first?) 
+    
+    * No searching function at all and we only rely on our Minimax approch and its add ons however the minimax move down the tree using DFS or BFS, using it via         minimax is fine. 
+    * Don't forget to test our program in the game provided on LMS against other teams
+    * And don't forget to generate as much as complicated test cases to ensure the high utility of our program
+    * Our player should (must) play optimally and making random moves may result in losing the game
+    
+    
+    
+    
