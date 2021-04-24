@@ -1,5 +1,5 @@
-from team_name.board import Board
-from team_name.piece import Piece
+from DOMINATORS.board import Board
+from DOMINATORS.piece import Piece
 
 class Player:
     def __init__(self, player):
@@ -11,7 +11,7 @@ class Player:
         play as Upper), or the string "lower" (if the instance will play
         as Lower).
         """
-        # put your code here
+        # put your code here 
 
         # If upper is given to us we can start with x = 4 and y is anything in the given range
         if player == "upper": 

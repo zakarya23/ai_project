@@ -5,6 +5,7 @@
 - Keep track of board 
 - Which algorithm, machine learning or no ML? 
 - firt piece random and then use board state to choose next ones
+
 -------- Ideas ---------
  - We decided to go with MINIMAX algo and adding alpha-beta feature afterwards
  - How to implement the MINIMAX:
