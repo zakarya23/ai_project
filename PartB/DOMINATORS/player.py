@@ -1,5 +1,6 @@
 from DOMINATORS.board import Board
 from DOMINATORS.piece import Piece
+from random import randrange
 
 class Player:
     def __init__(self, player):
@@ -30,14 +31,25 @@ class Player:
         Called at the beginning of each turn. Based on the current state
         of the game, select an action to play this turn.
         """
+
+        tokens = ["s", "r", "p"]
+        random_index = randrange(len(tokens))
+        piece = tokens[random_index]
         # put your code here
+
         if self.turn % 2 ==  0: 
-            self.turn += 1
-            return ("THROW", "s", (self.start[0], self.start[1]))
-        elif self.turn % 2 == 1:  
-            self.turn += 1
-            return ("THROW", "r", (self.start[0], self.start[1]))
-        # else:
+            # self.turn += 1
+            return ("THROW", piece, (self.start[0], self.start[1]))
+        # WILL WOKR ON THROWS LATER 
+
+        
+        # elif self.turn % 2 == 1:  
+        #     self.turn += 1
+        #     rand_piece = randrange(len(self.board.our_pieces))
+        #     to_move = self.board.our_pieces[rand_piece]
+        #     # NEED TO KEEP IN RANGE THE MOVEMENT 
+        #     return ("SLIDE", (to_move.current[0], to_move.current[1]), to_move)
+        # # else:
         #     if self.player_type == "upper":
         #         return ("SLIDE", (self.start[0], self.start[1]), (3, 0))
         #     else: 
@@ -59,11 +71,15 @@ class Player:
         if opponent_action[0] == "THROW": 
             opp_piece = Piece(opponent_action[2], opponent_action[1])
         else: 
-            opp_piece = Piece(opponent_action[2], opponent_action[1])
+            old_location = opponent_action[1]
+            # Searching for which piece had that initial location
+            for piece in self.board.opponents: 
+                # If location matches we update its position
+                if piece.current == old_location:  
+                    piece.current = opponent_action[2] 
+
 
         self.board.opponents.append(opp_piece)
         self.board.our_pieces.append(player_action)
         print(self.board.opponents)
     
-        
-
