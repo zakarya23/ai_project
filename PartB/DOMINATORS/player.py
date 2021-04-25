@@ -1,6 +1,7 @@
 from DOMINATORS.board import Board
 from DOMINATORS.piece import Piece
 from random import randrange
+from DOMINATORS.node import Node
 
 class Player:
     def __init__(self, player):
@@ -24,40 +25,67 @@ class Player:
         self.player_type = player
         self.board = Board()
         self.turn = 0 
+        self.first_turn = True 
+        # self.start = False
         
 
+    def create_minimax_tree(self, point, target): 
+        target = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
+        root = Node(point.name, point.current, "MAX")
+        # Find all children of node and set them to MIN 
+        # If none of them are target we iterate over them and set to MAX and keep going 
+        found = False
+        while not found: 
+            for val in target: 
+                new_point = (root.point[0] + val[0], root.point[1] + val[1])
+                if self.is_valid(new_point): 
+                    root.children.append(new_point)
+                    if new_point == target: 
+                        # Set property to min too
+                        found = True
+                        break 
+
+
+        return None 
+
+    def is_valid(self, point): 
+        return True 
+
+    def find_max(self): 
+        return None 
+
+    def find_min(self): 
+        return None 
+    
     def action(self):
         """
         Called at the beginning of each turn. Based on the current state
         of the game, select an action to play this turn.
         """
 
-        tokens = ["s", "r", "p"]
-        random_index = randrange(len(tokens))
-        piece = tokens[random_index]
         # put your code here
+        # How to decide whether to throw or slide 
+        if self.turn % 2 ==  0 and self.first_turn: 
+            self.first_turn = False
+            self.turn += 1
+            return ("THROW", "s", (self.start[0], self.start[1])) 
+        elif self.turn % 2 ==  0: 
+            # How to calculate new throw position
+            self.turn += 1
+            return ("THROW", "s", (self.start[0], self.start[1])) 
+        else: 
+            # Get one piece from our list 
+            # Perform minimax 
+            # And slide towards best possible outcome 
+            # Q : Did we wanna loop through and perform MM on each or just choose random? 
+            # Q: and how to choose which opponent piece to target? 
+            random_index = randrange(len(self.board.our_pieces))
+            to_move = self.board.our_pieces[random_index]
+            # Perform MM
 
-        if self.turn % 2 ==  0: 
-            # self.turn += 1
-            return ("THROW", piece, (self.start[0], self.start[1]))
-        # WILL WOKR ON THROWS LATER 
 
-        
-        # elif self.turn % 2 == 1:  
-        #     self.turn += 1
-        #     rand_piece = randrange(len(self.board.our_pieces))
-        #     to_move = self.board.our_pieces[rand_piece]
-        #     # NEED TO KEEP IN RANGE THE MOVEMENT 
-        #     return ("SLIDE", (to_move.current[0], to_move.current[1]), to_move)
-        # # else:
-        #     if self.player_type == "upper":
-        #         return ("SLIDE", (self.start[0], self.start[1]), (3, 0))
-        #     else: 
-        #         return ("SLIDE", (self.start[0], self.start[1]), (-3, 0))
+     
 
-
-
-    
     def update(self, opponent_action, player_action):
         """
         Called at the end of each turn to inform this player of both
@@ -67,9 +95,10 @@ class Player:
         and player_action is this instance's latest chosen action.
         """
         # put your code here
+        # print("P")
         # Means its a throw 
         if opponent_action[0] == "THROW": 
-            opp_piece = Piece(opponent_action[2], opponent_action[1])
+            opp_piece = Piece(opponent_action[2], opponent_action[1])   
         else: 
             old_location = opponent_action[1]
             # Searching for which piece had that initial location
@@ -78,8 +107,18 @@ class Player:
                 if piece.current == old_location:  
                     piece.current = opponent_action[2] 
 
+        if player_action[0] == 'THROW': 
+            p_piece =  Piece(player_action[2], player_action[1])   
+        else: 
+            old_location = player_action[1]
+            # Searching for which piece had that initial location
+            for piece in self.board.our_pieces: 
+                # If location matches we update its position
+                if piece.current == old_location:  
+                    piece.current = player_action[2] 
+
 
         self.board.opponents.append(opp_piece)
-        self.board.our_pieces.append(player_action)
-        print(self.board.opponents)
+        self.board.our_pieces.append(p_piece)
+        # print(self.board.opponents)
     
