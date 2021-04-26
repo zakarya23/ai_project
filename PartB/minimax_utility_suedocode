@@ -1,7 +1,7 @@
 state = board
 
 
-function Minimax(state, depth)
+function Minimax(state, depth, ismaximising)
   val = max_val(state)
   return action in successors(state) with value val
   
