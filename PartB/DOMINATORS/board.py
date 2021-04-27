@@ -20,8 +20,8 @@ class Board:
             for _ in range(0, row + 1): 
                 state = PieceState("", (r, q), "")
                 state2 = PieceState("", (rbottom, qbottom), "")
-                spots.add(state)
-                spots.add(state2)
+                spots.add((r, q))
+                spots.add((rbottom, qbottom))
                 q += 1
                 qbottom -= 1
 
