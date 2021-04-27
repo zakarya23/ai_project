@@ -24,6 +24,8 @@ class Player:
         # print(self.start)
         self.player_type = player
         self.board = Board()
+        # print("sSSSSS")
+        # print(self.board.spots)
         self.turn = 0 
         self.first_turn = True 
         # self.start = False
