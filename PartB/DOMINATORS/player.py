@@ -21,33 +21,13 @@ class Player:
         else: 
             self.start = (-4, 0)
 
-        # print(self.start)
         self.player_type = player
         self.board = Board()
-        # print("sSSSSS")
-        # print(self.board.spots)
         self.turn = 0 
         self.first_turn = True 
-        # self.start = False
         
 
     def create_minimax_tree(self, point, target): 
-        target = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
-        root = Node(point.name, point.current, "MAX")
-        # Find all children of node and set them to MIN 
-        # If none of them are target we iterate over them and set to MAX and keep going 
-        found = False
-        while not found: 
-            for val in target: 
-                new_point = (root.point[0] + val[0], root.point[1] + val[1])
-                if self.is_valid(new_point): 
-                    root.children.append(new_point)
-                    if new_point == target: 
-                        # Set property to min too
-                        found = True
-                        break 
-
-
         return None 
 
     def is_valid(self, point): 
