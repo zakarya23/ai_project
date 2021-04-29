@@ -28,6 +28,38 @@ class Player:
         self.turn = 0 
         self.first_turn = True 
         self.throws = 0 
+
+    def minimax(self, current_position, depth, maximising):
+        if depth == 0: 
+            # NEED TO FIX THIS
+            return current_position
+        children = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
+        if maximising: 
+            highest = -(1000000000 * 100000000)
+            for c in children: 
+                child = (current_position[0] + c[0], current_position[1] + c[1])
+                if child in self.board.spots:
+                    score = self.minimax(child, depth - 1, False)
+            highest = max(highest, score)
+            return highest
+        else: 
+            lowest = (1000000000 * 100000000)
+            for c in children: 
+                child = (current_position[0] + c[0], current_position[1] + c[1])
+                if child in self.board.spots:
+                    score = self.minimax(child, depth - 1, True)
+            lowest = min(lowest, score)
+            return lowest
+
+    def best_move(self): 
+        highest = -(1000000000 * 100000000)
+        piece = None
+        for p in self.board.our_pieces: 
+           new_score = self.minimax(p.current, 3, True)
+           if new_score > highest: 
+               highest = new_score
+               piece = p
+        return (piece, highest)
         
     def estimate(self, our, opponent):
         if our in self.board.opponents:
@@ -37,21 +69,33 @@ class Player:
         else: 
             return 0 
 
+    def throw(self, sent): 
+        token = ["r", "s", "p"]
+        self.turn += 1
+        self.throws += 1
+        if (self.move == "ADD"):
+            new = (self.start[0] + 1, self.start[1])
+            if new in self.board.spots and new not in self.board.our_locations: 
+                sent = True
+                self.start = new
+        else: 
+            new =  self.start = (self.start[0] - 1, self.start[1])
+            if new in self.board.spots and new not in self.board.our_locations:
+                sent = True 
+                self.start = new
+
+        r_index = randrange(len(token))
+        print("AAAAA")
+        if sent:
+            return ("THROW", token[r_index], (self.start[0], self.start[1])) 
 
     def action(self):
         """
         Called at the beginning of each turn. Based on the current state
         of the game, select an action to play this turn.
         """
-        # if self.player_type == "lower":
-        # Need to make sure killed pieces dont exist 
         token = ["r", "s", "p"]
         sent = False
-        # ALSO NEED TO MAKE SURE THROWS DONT EXCEED 9 
-
-
-        # So if in thhe same turn a piece is killed without 
-        # update being called we get erorr 
 
         # put your code here
         # How to decide whether to throw or slide 
@@ -64,39 +108,33 @@ class Player:
             return ("THROW", token[r_index], (self.start[0], self.start[1])) 
         elif self.turn % 2 ==  0 and self.throws < 9: 
             # How to calculate new throw position
+            token = ["r", "s", "p"]
             self.turn += 1
             self.throws += 1
             if (self.move == "ADD"):
                 new = (self.start[0] + 1, self.start[1])
-                if new in self.board.spots: 
+                if new in self.board.spots and new not in self.board.our_locations: 
                     sent = True
                     self.start = new
             else: 
                 new =  self.start = (self.start[0] - 1, self.start[1])
-                if new in self.board.spots:
+                if new in self.board.spots and new not in self.board.our_locations:
                     sent = True 
                     self.start = new
 
             r_index = randrange(len(token))
-   
-            return ("THROW", token[r_index], (self.start[0], self.start[1])) 
-        if not sent: 
+            print("AAAAA")
+            if sent:
+                return ("THROW", token[r_index], (self.start[0], self.start[1])) 
+        while not sent: 
             self.turn += 1
-            random_index = randrange(len(self.board.our_pieces))
-            to_move = self.board.our_pieces[random_index]
-            target = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
-            print(f'select = {to_move.current}')
-            
-            for t in target: 
-               
-                movex = t[0] + to_move.current[0] 
-                movey = t[1] + to_move.current[1] 
-                # print("AA")
-                if (movex, movey) in self.board.spots: 
-                    move = (movex, movey)
-                    print(move)
+    
+            # RETURN PIECE AND WHICH WAY TO MOVE 
+            piece = self.best_move()
+            to_move = piece[0] 
+            move = piece[1] 
 
-                    return ("SLIDE", to_move.current, move)
+            return ("SLIDE", to_move.current, move)
           
         #     # Get one piece from our list 
         #     # Perform minimax 
@@ -125,6 +163,7 @@ class Player:
         if opponent_action[0] == "THROW": 
             opp_piece = Piece(opponent_action[2], opponent_action[1]) 
             self.board.opponents.append(opp_piece)  
+            
             o = opp_piece
         else: 
             old_location = opponent_action[1]
@@ -139,6 +178,7 @@ class Player:
         if player_action[0] == 'THROW': 
             p_piece =  Piece(player_action[2], player_action[1])  
             self.board.our_pieces.append(p_piece)
+            self.board.our_locations.append(player_action[2])
             p = p_piece
         else: 
             old_location = player_action[1]
@@ -147,37 +187,55 @@ class Player:
             for piece in self.board.our_pieces: 
 
                 # If location matches we update its position
-                if piece.current == old_location:  
+                if piece.current == old_location: 
+                    i = self.board.our_locations.index(piece.current)
+                    self.board.our_locations.pop(i)
                     piece.current = player_action[2]
+                    self.board.our_locations.append(piece.current)
                     p = piece
                     break
+
+        def verse(self, p1, p2): 
+            print("battled")
+            if p1.name == "r" and p2.name == "s" or p1.name == "p" and p2.name == "r" or p1.name == "s" and p2.name == "p":
+                print("p1")
+                ind = self.board.opponents.index(p2)
+                self.board.opponents.pop(ind)
+            elif p2.name == "r" and p1.name == "s" or p2.name == "p" and p1.name == "r" or p2.name == "s" and p1.name == "p":
+                print("p2")
+                ind = self.board.our_pieces.index(p1)
+                self.board.our_pieces.pop(ind) 
 
         # Checking if something was thrown onto my pieces 
         for p in self.board.our_pieces: 
             if p.current == opponent_action[2]:
-                print("battled")
+                print("battled!")
                 if p.name == "r" and o.name == "s" or p.name == "p" and o.name == "r" or p.name == "s" and o.name == "p":
                     print("p1")
-                    ind = self.board.opponents.index(o)
-                    self.board.opponents.pop(ind)
+                    o.status = False
+                    # ind = self.board.opponents.index(o)
+                    # self.board.opponents.pop(ind)
                 elif o.name == "r" and p.name == "s" or o.name == "p" and p.name == "r" or o.name == "s" and p.name == "p":
                     print("p2")
-                    ind = self.board.our_pieces.index(p)
-                    self.board.our_pieces.pop(ind) 
+                    p.status = False
+                    # ind = self.board.our_pieces.index(p)
+                    # self.board.our_pieces.pop(ind) 
             # if opponent_action[0] == "SLIDE" and p.current == opponent_action[2]:
 
         # Check if we hurt enemey 
         for o in self.board.opponents: 
             if o.current == player_action[2] and p in self.board.our_pieces: 
-                print("battled")
+                print("battled!")
                 if p.name == "r" and o.name == "s" or p.name == "p" and o.name == "r" or p.name == "s" and o.name == "p":
                     print("p1")
-                    ind = self.board.opponents.index(o)
-                    self.board.opponents.pop(ind)
+                    o.status = False
+                    # ind = self.board.opponents.index(o)
+                    # self.board.opponents.pop(ind)
                 elif o.name == "r" and p.name == "s" or o.name == "p" and p.name == "r" or o.name == "s" and p.name == "p":
                     print("p2")
-                    ind = self.board.our_pieces.index(p)
-                    self.board.our_pieces.pop(ind) 
+                    p.status = False
+                    # ind = self.board.our_pieces.index(p)
+                    # self.board.our_pieces.pop(ind) 
 
         # We killed ourself 
         for pie in self.board.our_pieces: 
@@ -185,30 +243,26 @@ class Player:
                 print("battled SAME ME")
                 if pie.name == "r" and p.name == "s" or pie.name == "p" and p.name == "r" or pie.name == "s" and p.name == "p":
                     print("p1")
-                    ind = self.board.our_pieces.index(p)
-                    self.board.our_pieces.pop(ind)
+                    # ind = self.board.our_pieces.index(p)
+                    # self.board.our_pieces.pop(ind)
+                    p.status = False
                 elif p.name == "r" and pie.name == "s" or p.name == "p" and pie.name == "r" or p.name == "s" and pie.name == "p":
                     print("p2")
-                    ind = self.board.our_pieces.index(p)
-                    self.board.our_pieces.pop(ind) 
+                    # ind = self.board.our_pieces.index(p)
+                    # self.board.our_pieces.pop(ind) 
+                    pie.status = False
 
         # opp killed itself
         for opp in self.board.opponents: 
-            if opp.current == opponent_action[2]:
+            if opp.current == opponent_action[2] and o in self.board.opponents:
                 print("battled SAME")
                 if opp.name == "r" and o.name == "s" or opp.name == "p" and o.name == "r" or opp.name == "s" and o.name == "p":
                     print("p1")
-                    ind = self.board.opponents.index(o)
-                    self.board.opponents.pop(ind)
+                    o.status = False
+                    # ind = self.board.opponents.index(o)
+                    # self.board.opponents.pop(ind)
                 elif o.name == "r" and opp.name == "s" or o.name == "p" and opp.name == "r" or o.name == "s" and opp.name == "p":
                     print("p2")
-                    ind = self.board.opponents.index(o)
-                    self.board.opponents.pop(ind)
-
-
-
-
-    
-                   
-        
-  
+                    opp.status = False
+                    # ind = self.board.opponents.index(o)
+                    # self.board.opponents.pop(ind)

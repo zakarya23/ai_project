@@ -4,7 +4,9 @@ class Board:
     def __init__(self): 
         # List of piece classes
         self.our_pieces = [] 
+        self.our_locations = [] 
         self.opponents = [] 
+        self.opp_locations = []
         self.spots = self.initilaise_board()
         
 
@@ -18,8 +20,8 @@ class Board:
             q = -4 
             qbottom = 4 
             for _ in range(0, row + 1): 
-                state = PieceState("", (r, q), "")
-                state2 = PieceState("", (rbottom, qbottom), "")
+                # state = PieceState("", (r, q), "")
+                # state2 = PieceState("", (rbottom, qbottom), "")
                 spots.add((r, q))
                 spots.add((rbottom, qbottom))
                 q += 1
