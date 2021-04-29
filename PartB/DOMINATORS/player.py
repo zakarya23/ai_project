@@ -29,45 +29,86 @@ class Player:
         self.first_turn = True 
         self.throws = 0 
 
-    def minimax(self, current_position, depth, maximising):
+    def check_piece(self, position):
+        # print("aaaa")
+        for opp in self.board.opponents: 
+            if position.current == opp.current: 
+                # print('battled')
+                if position.name == "r" and opp.name == "s" or position.name == "p" and opp.name == "r" or position.name == "s" and opp.name == "p":
+                    # print("haha")
+                    return 1
+                    # ind = self.board.opponents.index(p2)
+                    # self.board.opponents.pop(ind)
+                elif opp.name == "r" and position.name == "s" or opp.name == "p" and position.name == "r" or opp.name == "s" and position.name == "p":
+                    # print("p2")
+                    return -1
+                    # ind = self.board.our_pieces.index(p1)
+                    # self.board.our_pieces.pop(ind) 
+
+            for opp in self.board.our_pieces: 
+                # print(opp.name)
+                if position.current == opp.current: 
+                    # print('battled')
+                    if position.name == "r" and opp.name == "s" or position.name == "p" and opp.name == "r" or position.name == "s" and opp.name == "p":
+                        # print("haha")
+                        return 1
+                        # ind = self.board.opponents.index(p2)
+                        # self.board.opponents.pop(ind)
+                    elif opp.name == "r" and position.name == "s" or opp.name == "p" and position.name == "r" or opp.name == "s" and position.name == "p":
+                        # print("p2")
+                        return -1
+        return 0 
+        
+    def minimax(self, current_piece, depth, maximising):
         if depth == 0: 
-            # NEED TO FIX THIS
-            return current_position
+            # Evaluation function
+            # print("pop")
+            # future_piece = Piece()
+            return self.check_piece(current_piece)
         children = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
+        future_piece = None
         if maximising: 
             highest = -(1000000000 * 100000000)
             for c in children: 
-                child = (current_position[0] + c[0], current_position[1] + c[1])
+                child = (current_piece.current[0] + c[0], current_piece.current[1] + c[1])
                 if child in self.board.spots:
-                    score = self.minimax(child, depth - 1, False)
-            highest = max(highest, score)
-            return highest
+                    future_piece = Piece(child, current_piece.name)
+                    score = self.minimax(future_piece, depth - 1, False)
+                    # if score > 0:
+                    # print(f'{current_piece.current} == {child}  {score}')
+                   
+            highest = max(highest, score[1])
+            # print("highest")
+            return (future_piece, highest)
         else: 
             lowest = (1000000000 * 100000000)
             for c in children: 
-                child = (current_position[0] + c[0], current_position[1] + c[1])
+                child = (current_piece.current[0] + c[0], current_piece.current[1] + c[1])
                 if child in self.board.spots:
-                    score = self.minimax(child, depth - 1, True)
-            lowest = min(lowest, score)
-            return lowest
+                    future_piece = Piece(child, current_piece.name)
+                    score = self.minimax(future_piece, depth - 1, True)
+                    # print("OPOPO")
+                    print(f'score = {score[1]}')
+            lowest = min(lowest, score[1])
+            return (future_piece, lowest)
 
     def best_move(self): 
         highest = -(1000000000 * 100000000)
         piece = None
         for p in self.board.our_pieces: 
-           new_score = self.minimax(p.current, 3, True)
+           new_score = self.minimax(p, 5, True)
            if new_score > highest: 
                highest = new_score
                piece = p
         return (piece, highest)
         
-    def estimate(self, our, opponent):
-        if our in self.board.opponents:
-            return 1
-        elif opponent in self.board.our_pieces: 
-            return - 1
-        else: 
-            return 0 
+    # def estimate(self, our, opponent):
+    #     if our in self.board.opponents:
+    #         return 1
+    #     elif opponent in self.board.our_pieces: 
+    #         return - 1
+    #     else: 
+    #         return 0 
 
     def throw(self, sent): 
         token = ["r", "s", "p"]
@@ -85,7 +126,7 @@ class Player:
                 self.start = new
 
         r_index = randrange(len(token))
-        print("AAAAA")
+        # print("AAAAA")    
         if sent:
             return ("THROW", token[r_index], (self.start[0], self.start[1])) 
 
@@ -123,7 +164,7 @@ class Player:
                     self.start = new
 
             r_index = randrange(len(token))
-            print("AAAAA")
+            # print("AAAAA")
             if sent:
                 return ("THROW", token[r_index], (self.start[0], self.start[1])) 
         while not sent: 
@@ -131,6 +172,10 @@ class Player:
     
             # RETURN PIECE AND WHICH WAY TO MOVE 
             piece = self.best_move()
+            print("POPOPOPO")
+            print(piece)
+            
+            
             to_move = piece[0] 
             move = piece[1] 
 
