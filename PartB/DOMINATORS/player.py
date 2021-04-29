@@ -119,128 +119,96 @@ class Player:
         and player_action is this instance's latest chosen action.
         """
         # put your code here
-        # Means its a throw 
-        battle = False
-        p = None
         o = None
-
-        # print(f'{player_action[2]}   {opponent_action[2]}')
-        if player_action[2] == opponent_action[2]: 
-            battle = True
+        p = None
 
         if opponent_action[0] == "THROW": 
             opp_piece = Piece(opponent_action[2], opponent_action[1]) 
-            o = opp_piece
             self.board.opponents.append(opp_piece)  
+            o = opp_piece
         else: 
             old_location = opponent_action[1]
-            # print("SLIDE opp")
             # Searching for which piece had that initial location
             for piece in self.board.opponents: 
-                # print("FOUND WHICH PIECE FOR OPP")
                 # If location matches we update its position
                 if piece.current == old_location: 
-                    # print("CHASNGED OPP") 
                     piece.current = opponent_action[2] 
-                    # print(piece.current)
                     o = piece
                     break 
 
-        # Also need to make sure killed pieces dissapear
-        # Make sure upper chooses upper  
-
         if player_action[0] == 'THROW': 
             p_piece =  Piece(player_action[2], player_action[1])  
-            p = p_piece 
             self.board.our_pieces.append(p_piece)
+            p = p_piece
         else: 
             old_location = player_action[1]
-            # print("SLIDE")
+
             # Searching for which piece had that initial location
             for piece in self.board.our_pieces: 
-                # print("FOUND WHICH PIECE")
+
                 # If location matches we update its position
                 if piece.current == old_location:  
                     piece.current = player_action[2]
-                    # print("--------------------")
-                    # print(piece.current) 
                     p = piece
-        
-        # print(len(self.board.our_pieces))
-        # print(len(self.board.opponents))
+                    break
 
-        # For any current battles 
-        if battle: 
-            print("battled!")
-            if p.name == "r" and o.name == "s" or p.name == "p" and o.name == "r" or p.name == "s" and o.name == "p" :
-                print("P11")
-                # print(o)
-                # print(o.current)
-                ind = self.board.opponents.index(o)
-                self.board.opponents.pop(ind)
-                battle = False
-            elif o.name == "r" and p.name == "s" or o.name == "p" and p.name == "r" or o.name == "s" and p.name == "p":
-                print("p2")
-                ind = self.board.our_pieces.index(p)
-                self.board.our_pieces.pop(ind)
-                battle = False
-
-        # FOR BATTLE WE CHECKED CURRENT PIECE NOT PREVIUS PIECEDS 
-        # Loop through opponent and our pieces to see if anything was killed in battle 
-
-        # We are only checkking if the current change killed a piece of ours. 
-        # Need to check if any other opponent pieces killed our pieces 
-        for pie in self.board.our_pieces:
-            # print("A")
-            
-            print(f'{pie.current} and {o.current}')
-            if opponent_action[2] == pie.current and opponent_action[2] in self.board.opponents: 
-                # Battle and remove 
-                print("battled3")
-                if pie.name == "r" and o.name == "s" or pie.name == "p" and o.name == "r" or pie.name == "s" and o.name == "p" :
-                    # print("P1")
-                    # print(o.current)
-                    for i in self.board.opponents: 
-                        print(i.current)
+        # Checking if something was thrown onto my pieces 
+        for p in self.board.our_pieces: 
+            if p.current == opponent_action[2]:
+                print("battled")
+                if p.name == "r" and o.name == "s" or p.name == "p" and o.name == "r" or p.name == "s" and o.name == "p":
+                    print("p1")
                     ind = self.board.opponents.index(o)
                     self.board.opponents.pop(ind)
-                    # battle = False
-                elif o.name == "r" and pie.name == "s" or o.name == "p" and pie.name == "r" or o.name == "s" and pie.name == "p":
-                    # print("p2")
-                    ind = self.board.our_pieces.index(pie)
-                    self.board.our_pieces.pop(ind)
-                    # battle = False
+                elif o.name == "r" and p.name == "s" or o.name == "p" and p.name == "r" or o.name == "s" and p.name == "p":
+                    print("p2")
+                    ind = self.board.our_pieces.index(p)
+                    self.board.our_pieces.pop(ind) 
+            # if opponent_action[0] == "SLIDE" and p.current == opponent_action[2]:
 
-            # Our piece may kill itself 
-            if player_action[2] == pie.current and player_action[2] in self.board.our_pieces: 
-                # Battle and remove 
-                print("battled4")
-                if pie.name == "r" and p.name == "s" or pie.name == "p" and p.name == "r" or pie.name == "s" and p.name == "p" :
-                    # print("P1")
+        # Check if we hurt enemey 
+        for o in self.board.opponents: 
+            if o.current == player_action[2] and p in self.board.our_pieces: 
+                print("battled")
+                if p.name == "r" and o.name == "s" or p.name == "p" and o.name == "r" or p.name == "s" and o.name == "p":
+                    print("p1")
                     ind = self.board.opponents.index(o)
                     self.board.opponents.pop(ind)
-                    # battle = False
-                elif p.name == "r" and pie.name == "s" or p.name == "p" and pie.name == "r" or p.name == "s" and pie.name == "p":
-                    # print("p2")
+                elif o.name == "r" and p.name == "s" or o.name == "p" and p.name == "r" or o.name == "s" and p.name == "p":
+                    print("p2")
+                    ind = self.board.our_pieces.index(p)
+                    self.board.our_pieces.pop(ind) 
+
+        # We killed ourself 
+        for pie in self.board.our_pieces: 
+            if pie.current == player_action[2]:
+                print("battled SAME ME")
+                if pie.name == "r" and p.name == "s" or pie.name == "p" and p.name == "r" or pie.name == "s" and p.name == "p":
+                    print("p1")
                     ind = self.board.our_pieces.index(p)
                     self.board.our_pieces.pop(ind)
+                elif p.name == "r" and pie.name == "s" or p.name == "p" and pie.name == "r" or p.name == "s" and pie.name == "p":
+                    print("p2")
+                    ind = self.board.our_pieces.index(p)
+                    self.board.our_pieces.pop(ind) 
 
-        for p in self.board.our_pieces: 
-            for o in self.board.opponents: 
-                # For each opponent we check each our piece 
-                if o.current == p.current and o.current in self.board.opponents and p.current in self.board.our_pieces: 
-                    print("battled!")
-                    if p.name == "r" and o.name == "s" or p.name == "p" and o.name == "r" or p.name == "s" and o.name == "p" :
-                        print("P11")
-                        # print(o)
-                        # print(o.current)
-                        ind = self.board.opponents.index(o)
-                        self.board.opponents.pop(ind)
-                        # battle = False
-                    elif o.name == "r" and p.name == "s" or o.name == "p" and p.name == "r" or o.name == "s" and p.name == "p":
-                        print("p2")
-                        ind = self.board.our_pieces.index(p)
-                        self.board.our_pieces.pop(ind)
-                        # battle = False
+        # opp killed itself
+        for opp in self.board.opponents: 
+            if opp.current == opponent_action[2]:
+                print("battled SAME")
+                if opp.name == "r" and o.name == "s" or opp.name == "p" and o.name == "r" or opp.name == "s" and o.name == "p":
+                    print("p1")
+                    ind = self.board.opponents.index(o)
+                    self.board.opponents.pop(ind)
+                elif o.name == "r" and opp.name == "s" or o.name == "p" and opp.name == "r" or o.name == "s" and opp.name == "p":
+                    print("p2")
+                    ind = self.board.opponents.index(o)
+                    self.board.opponents.pop(ind)
 
 
+
+
+    
+                   
+        
+  
