@@ -39,5 +39,21 @@ example is when we have multiple choices of empty blocks or opponent's blocks (e
     * Our player should (must) play optimally and making random moves may result in losing the game
     
     
-    
-    
+ ------- THIS PART ADDED ON MAY 2nd   
+1. How do you control the number of THROWS of both players only by having one self.throw ? 
+2. I have added self.max_depth
+3. I have modified minimax 
+4. added some libraries an used sys instead of infinities
+5. I think we need to add something to action function to chose between throw, slide and swing and avoid randomness to 
+increase winning chance
+6. I added self.vectors instead of children
+7. Do we need to add number of rows and columns to make calculation easier? 
+8. a function to decide what to throw?
+9. Is piece[0] and piece[1] coordinated of the piece?
+10. Added winning position stuff to board.py 
+11. we don't need to throw all of our pieces in order to win, remember less pieces = faster game
+12. What does line 93 do bro 
+13. Why you wrote depth - 1? we need + 1 in order to check the max depth and traverse the tree
+14. we should add a get_possible_action function in order to add swing cuz 
+self.board.vectors(previously children) only covers slide actions 
+15. Do we need something to calculate the probablity of our piece getting caught by the opponent piece    
