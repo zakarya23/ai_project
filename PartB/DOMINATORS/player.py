@@ -73,6 +73,28 @@ class Player:
     # def winning_position(self): maybe best_move is enough, what do you think? 
 
     
+    # this function check if the winning chance is 100% and stop the minimax
+    def absolute_win(self):
+        opp_piece_dic, our_piece_dic = self.piece_dict()
+        
+        # when we both don't have anymore throws
+        if opp_piece_dic['r'] == opp_piece_dic['p'] == 0 and opp_piece_dic['s'] != 0:
+            if our_piece_dic['s'] == our_piece_dic['p'] == 0 and our_piece_dic['r'] != 0:
+                win = True
+
+        if opp_piece_dic['r'] == opp_piece_dic['s'] == 0 and opp_piece_dic['p'] != 0:
+            if our_piece_dic['r'] == our_piece_dic['p'] == 0 and our_piece_dic['s'] != 0:
+                win = True
+        
+        if opp_piece_dic['p'] == opp_piece_dic['s'] == 0 and opp_piece_dic['r'] != 0:
+            if our_piece_dic['r'] == our_piece_dic['s'] == 0 and our_piece_dic['p'] != 0:
+                win = True
+
+        
+        return win
+    
+
+
     
     def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
                
@@ -165,15 +187,43 @@ class Player:
     
     
 
-
+    # evaluate the pair of actions using payoff matrix
     def eval(self): 
         eval_val = 0
         utility = 0
-        for opp_player in self.board.opponents:
 
+        # Utility: basically will check for a chance of winning like 
+        # if the game ended: how to write this? 
+        opp_piece_dic, our_piece_dic = self.piece_dict()
+        
+        for p in self.board.opponents:
+            # if it got killed
+            if (not p.status):
+                utility += 1
+        
+        for p in self.board.opponents:
+            # if it got killed
+            if (not p.status):
+                utility -= 1
+
+        eval += our_piece_dic['r'] - opp_piece_dic['p']
+        eval += our_piece_dic['s'] - opp_piece_dic['r']
+        eval += our_piece_dic['p'] - opp_piece_dic['s'] 
+        
+        # Evaluating and making it heuristic
+        
+        
+        
+        return eval; 
         
 
-    
+    # this function will check the rate of danger for getting distroyed by the opponent piece like how close is the dominant piece to it
+    def danger_check(piece):
+
+        if piece
+
+
+
     def best_move(self): 
         #heuristic dict
         
@@ -220,9 +270,9 @@ class Player:
     
     # this will choose what piece to throw between (r, s, p) use it inside action func while we have throws option
     # we don't need to throw all of our pieces in order to win, remember less pieces = faster game
-    def throw_what(self):
-        opp_piece_dic = {'r': 0; 'p': 0, 's': 0}
-        our_piece_dic = {'r': 0; 'p': 0, 's': 0}
+    def piece_dict(self):
+        opp_piece_dic = {'r': 0, 'p': 0, 's': 0}
+        our_piece_dic = {'r': 0, 'p': 0, 's': 0}
         
         throw = None #name of the selected piece that we going to throw
         for p in self.board.opponents:
@@ -234,7 +284,12 @@ class Player:
             for key in piece_dic:
                 if p == key:
                     piece_dic[key] += 1
-
+        return opp_piece_dic, our_piece_dic
+    
+    
+    def throw_what(self):
+        
+        opp_piece_dic, our_piece_dic = self.piece_dict()
         # these will make us win faster and increase the chance of winning instead of random throwing
         
         # we need rock to kill the scissors
