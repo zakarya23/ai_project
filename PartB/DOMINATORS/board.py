@@ -8,6 +8,10 @@ class Board:
         self.opponents = [] 
         self.opp_locations = []
         self.spots = self.initilaise_board()
+        self.max_depth = 4
+        self.vectors = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
+        self.winning_positions = []
+        self.get_winning_position()
         
 
     def initilaise_board(self): 
