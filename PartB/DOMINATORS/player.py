@@ -2,13 +2,20 @@ from DOMINATORS.board import Board
 from DOMINATORS.piece import Piece
 from random import randrange
 from DOMINATORS.node import Node
+import numpy as np
+import math
+import random
+from random import shuffle
+from matplotlib import pyplot as plt
+from IPython.display import clear_output
+import sys
+
 
 class Player:
     def __init__(self, player):
         """
         Called once at the beginning of a game to initialise this player.
         Set up an internal representation of the game state.
-
         The parameter player is the string "upper" (if the instance will
         play as Upper), or the string "lower" (if the instance will play
         as Lower).
@@ -28,6 +35,7 @@ class Player:
         self.turn = 0 
         self.first_turn = True 
         self.throws = 0 
+        self.max_depth = 4
 
     def check_piece(self, position):
         # print("aaaa")
@@ -59,48 +67,174 @@ class Player:
                         return -1
         return 0 
         
-    def minimax(self, current_piece, depth, maximising):
-        if depth == 0: 
+    
+    
+    
+    # def winning_position(self): maybe best_move is enough, what do you think? 
+
+    
+    # this function check if the winning chance is 100% and stop the minimax
+    def absolute_win(self):
+        opp_piece_dic, our_piece_dic = self.piece_dict()
+        
+        # when we both don't have anymore throws
+        if opp_piece_dic['r'] == opp_piece_dic['p'] == 0 and opp_piece_dic['s'] != 0:
+            if our_piece_dic['s'] == our_piece_dic['p'] == 0 and our_piece_dic['r'] != 0:
+                win = True
+
+        if opp_piece_dic['r'] == opp_piece_dic['s'] == 0 and opp_piece_dic['p'] != 0:
+            if our_piece_dic['r'] == our_piece_dic['p'] == 0 and our_piece_dic['s'] != 0:
+                win = True
+        
+        if opp_piece_dic['p'] == opp_piece_dic['s'] == 0 and opp_piece_dic['r'] != 0:
+            if our_piece_dic['r'] == our_piece_dic['s'] == 0 and our_piece_dic['p'] != 0:
+                win = True
+
+        
+        return win
+    
+
+
+    
+    def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
+               
+        # how to check the game if its ended? right it here
+        
+        # then we need to repeat minimax for another piece
+        if current_depth == self.max_depth or self.ended():
+                                         #?? how to ceck end of game
+            return eval(self)
             # Evaluation function
+
             # print("pop")
             # future_piece = Piece()
-            return self.check_piece(current_piece)
-        children = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
+            # return self.check_piece(current_piece)  #do we need this anymore? 
+           
+        # children = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
+        
         future_piece = None
-        if maximising: 
-            highest = -(1000000000 * 100000000)
-            for c in children: 
+        
+        # get all possible actions and stored them in a list (NOT IMPLEMENTED YET)
+        
+        shuffle(self.board.vectors) #random
+        max_value = -sys.maxsize if maximising else sys.maxsize
+        for cell in self.board.vectors:
+            child = (current_piece.current[0] + cell[0], current_piece.current[1] + cell[1])
+            eval_child, future_piece = self.minimax(child, current_depth + 1, not maximising, alpha, beta)
+
+            if maximising and max_val < eval_child:
+                max_val = eval_child
+                future_piece =  cell
+                alpha = max(alpha, max_value)
+                if beta <= alpha:
+                    break
+            
+            elif (not maximising) and max_val > eval_child:
+                max_val = eval_child
+                future_piece =  cell
+                beta = min(beta, max_value)
+                if beta <= alpha:
+                    break
+
+
+        return future_piece, max_val
+
+       
+        """ if maximising: 
+            max_val = -sys.maxsize
+            for c in self.board.vectors: 
                 child = (current_piece.current[0] + c[0], current_piece.current[1] + c[1])
                 if child in self.board.spots:
                     future_piece = Piece(child, current_piece.name)
-                    score = self.minimax(future_piece, depth - 1, False)
+                    score = self.minimax(future_piece, depth + 1, False)
                     # if score > 0:
                     # print(f'{current_piece.current} == {child}  {score}')
                    
-            highest = max(highest, score[1])
+            max_val = max(max_val, score[1])
+           
+           # perform a beta test
+           
+            if max_val >= beta:
+                return (future_piece, max_val)
             # print("highest")
-            return (future_piece, highest)
+            # perform a alpha test
+            if max_val > alpha:
+                alpha = max_value
+            
         else: 
-            lowest = (1000000000 * 100000000)
-            for c in children: 
+            min_val = sys.maxsize
+            for c in self.board.vectors: 
                 child = (current_piece.current[0] + c[0], current_piece.current[1] + c[1])
                 if child in self.board.spots:
                     future_piece = Piece(child, current_piece.name)
-                    score = self.minimax(future_piece, depth - 1, True)
+                    score = self.minimax(future_piece, depth + 1, True)
                     # print("OPOPO")
                     print(f'score = {score[1]}')
-            lowest = min(lowest, score[1])
-            return (future_piece, lowest)
+            min_val = min(min_val, score[1])
+            # perform an alaph test
+            if min_val <= alpha:
+                return (future_piece, max_val)
+            # print("highest")
+            # perform a beta test
+            if min_val < beta:
+                beta = max_value """
+
+    
+    
+    
+
+    # evaluate the pair of actions using payoff matrix
+    def eval(self): 
+        eval_val = 0
+        utility = 0
+
+        # Utility: basically will check for a chance of winning like 
+        # if the game ended: how to write this? 
+        opp_piece_dic, our_piece_dic = self.piece_dict()
+        
+        for p in self.board.opponents:
+            # if it got killed
+            if (not p.status):
+                utility += 1
+        
+        for p in self.board.opponents:
+            # if it got killed
+            if (not p.status):
+                utility -= 1
+
+        eval += our_piece_dic['r'] - opp_piece_dic['p']
+        eval += our_piece_dic['s'] - opp_piece_dic['r']
+        eval += our_piece_dic['p'] - opp_piece_dic['s'] 
+        
+        # Evaluating and making it heuristic
+        
+        
+        
+        return eval; 
+        
+
+    # this function will check the rate of danger for getting distroyed by the opponent piece like how close is the dominant piece to it
+    def danger_check(self, piece):
+
+        if piece: 
+            return None
+
+
 
     def best_move(self): 
-        highest = -(1000000000 * 100000000)
+        #heuristic dict
+        
+        # store all the empty cells
+
+        highest = -sys.maxsize
         piece = None
         for p in self.board.our_pieces: 
            new_score = self.minimax(p, 5, True)
            if new_score > highest: 
                highest = new_score
                piece = p
-        return (piece, highest)
+        
+        return (piece, highest) # why we need to return the highest here?? 
         
     # def estimate(self, our, opponent):
     #     if our in self.board.opponents:
@@ -129,6 +263,43 @@ class Player:
         # print("AAAAA")    
         if sent:
             return ("THROW", token[r_index], (self.start[0], self.start[1])) 
+
+    
+    # this will choose what piece to throw between (r, s, p) use it inside action func while we have throws option
+    # we don't need to throw all of our pieces in order to win, remember less pieces = faster game
+    def piece_dict(self):
+        opp_piece_dic = {'r': 0, 'p': 0, 's': 0}
+        our_piece_dic = {'r': 0, 'p': 0, 's': 0}
+        
+        throw = None #name of the selected piece that we going to throw
+        for p in self.board.opponents:
+            for key in opp_piece_dic:
+                if p == key:
+                    opp_piece_dic[key] += 1
+        
+        for p in self.board.our_pieces:
+            for key in our_piece_dic:
+                if p == key:
+                    our_piece_dic[key] += 1
+        return opp_piece_dic, our_piece_dic
+    
+    
+    def throw_what(self):
+        
+        opp_piece_dic, our_piece_dic = self.piece_dict()
+        # these will make us win faster and increase the chance of winning instead of random throwing
+        
+        # we need rock to kill the scissors
+        if our_piece_dic['r'] == 0 and opp_piece_dic['s'] > 0:
+            throw = 'r'
+        # we need paper to kill the rocks
+        if our_piece_dic['p'] == 0 and opp_piece_dic['r'] > 0:
+            throw = 'p'
+      
+        # we need scissor to kill the paper
+        if our_piece_dic['s'] == 0 and opp_piece_dic['p'] > 0:
+            throw = 's'
+        
 
     def action(self):
         """
@@ -170,17 +341,51 @@ class Player:
         while not sent: 
             self.turn += 1
     
-            # RETURN PIECE AND WHICH WAY TO MOVE 
-            piece = self.best_move()
-            print("POPOPOPO")
-            print(piece)
+             
+            # if its our turn
             
-            
-            to_move = piece[0] 
-            move = piece[1] 
+            # get the best move
+            # max, y, x, depth = max(-sys.maxsize, sys.maxsize)
 
+            # select a heuristic move when we have cutoff in the tree
+            fp, mv = self.minimax()
+            if(depth > self.max_depth):
+                 x, y = self.best_move()
+            
+            # print("POPOPOPO")
+            # print(piece)
+            
+            
+            # to_move = piece[0] 
+            # move = piece[1] 
+                
+                # do we need to add the what_throw(self) here and then move? I think so haha
+            sent = self.game_ended()
             return ("SLIDE", to_move.current, move)
-          
+             # please check if this is correct!!! I wanted to check if the game finished
+            
+            #if its opponent turn( do we need this?? I am not sure)
+             #if self.player_type == "opp":
+
+                # what is the recommended move 
+               # min, y, x, depth = self.min(-sys.maxsize, sys.maxsize)
+                # select a heuristic move when we have cutoff in the tree
+               # if(depth > self.max_depth):
+                #    x, y = self.best_move()
+            
+                #print("POPOPOPO")
+                #print(piece)
+            
+                # are these x and y ?
+               # to_move = piece[0] 
+               # move = piece[1] 
+                # do we need to add the what_throw(self) here and then move? I think so haha
+                # return the solution of what_throw function
+                
+
+       
+       
+       
         #     # Get one piece from our list 
         #     # Perform minimax 
         #     # And slide towards best possible outcome 
