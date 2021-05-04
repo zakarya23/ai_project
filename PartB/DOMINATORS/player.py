@@ -176,9 +176,7 @@ class Player:
                         break
             
 
-        # print("end")
-        #fture_piece removed
-        # print(future_piece)
+
         return future_piece , max_value
 
     # evaluate the pair of actions using payoff matrix
@@ -224,16 +222,26 @@ class Player:
 
         highest = -sys.maxsize
         piece = None
-        a = True
+        # a = True
+        count = 0 
+        for p in self.board.our_pieces: 
+            print(f'ours {p.current} {p.status}')
+
+        for p in self.board.opponents: 
+            print(f'opps {p.current} {p.status}')
         
         for p in self.board.our_pieces: 
-           print(p.current)
+            print(f'{p.current} {p.status}')
             # def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
-           fp, new_score = self.minimax(p, 0, True)
-           if fp: 
-               print(f'p, fp = {p}, {fp}')
+            if p.status:
+                print("used")
+                fp, new_score = self.minimax(p, 0, True)
+                if fp: 
+                    print(f'p, fp = {p}, {fp}')
+                    return p, fp
+                    
            
-               return p, fp
+            
         #    print("P")
         #    if new_score > highest: 
         #        print("high")
@@ -377,28 +385,9 @@ class Player:
                 # select a heuristic move when we have cutoff in the tree
                # if(depth > self.max_depth):
                 #    x, y = self.best_move()
-            
-                #print("POPOPOPO")
-                #print(piece)
-            
-                # are these x and y ?
-               # to_move = piece[0] 
-               # move = piece[1] 
-                # do we need to add the what_throw(self) here and then move? I think so haha
-                # return the solution of what_throw function
+
                 
 
-       
-       
-       
-        #     # Get one piece from our list 
-        #     # Perform minimax 
-        #     # And slide towards best possible outcome 
-        #     # Q : Did we wanna loop through and perform MM on each or just choose random? 
-        #     # Q: and how to choose which opponent piece to target? 
-            # random_index = randrange(len(self.board.our_pieces))
-            # to_move = self.board.our_pieces[random_index]
-            # Perform MM
 
 
      
@@ -425,9 +414,10 @@ class Player:
             # Searching for which piece had that initial location
             for piece in self.board.opponents: 
                 # If location matches we update its position
-                if piece.current == old_location: 
+                if piece.current == old_location and piece.status: 
                     piece.current = opponent_action[2] 
                     o = piece
+                    print(f'moved from {old_location} to {piece.current}')
                     break 
 
         if player_action[0] == 'THROW': 
@@ -442,12 +432,13 @@ class Player:
             for piece in self.board.our_pieces: 
 
                 # If location matches we update its position
-                if piece.current == old_location: 
+                if piece.current == old_location and piece.status: 
                     i = self.board.our_locations.index(piece.current)
                     self.board.our_locations.pop(i)
                     piece.current = player_action[2]
                     self.board.our_locations.append(piece.current)
                     p = piece
+                    print(f'moved from {old_location} to {piece.current}')
                     break
 
         def verse(self, p1, p2): 
@@ -455,40 +446,39 @@ class Player:
             if p1.name == "r" and p2.name == "s" or p1.name == "p" and p2.name == "r" or p1.name == "s" and p2.name == "p":
                 print("p1")
                 ind = self.board.opponents.index(p2)
-                self.board.opponents.pop(ind)
+                self.board.opponents.pop(ind)   
             elif p2.name == "r" and p1.name == "s" or p2.name == "p" and p1.name == "r" or p2.name == "s" and p1.name == "p":
                 print("p2")
                 ind = self.board.our_pieces.index(p1)
                 self.board.our_pieces.pop(ind) 
 
         # Checking if something was thrown onto my pieces 
-        for p in self.board.our_pieces: 
-            if p.current == opponent_action[2]:
+        for piec in self.board.our_pieces: 
+            if piec.current == opponent_action[2] and (o in self.board.opponents) and o.status:
                 print("battled!")
-                if p.name == "r" and o.name == "s" or p.name == "p" and o.name == "r" or p.name == "s" and o.name == "p":
+                if piec.name == "r" and o.name == "s" or piec.name == "p" and o.name == "r" or piec.name == "s" and o.name == "p":
                     print("p1")
                     o.status = False
-                    # ind = self.board.opponents.index(o)
-                    # self.board.opponents.pop(ind)
-                elif o.name == "r" and p.name == "s" or o.name == "p" and p.name == "r" or o.name == "s" and p.name == "p":
+                    print(f'{o.current} killed cos {o.status}')
+                elif o.name == "r" and piec.name == "s" or o.name == "p" and piec.name == "r" or o.name == "s" and piec.name == "p":
                     print("p2")
-                    p.status = False
-                    # ind = self.board.our_pieces.index(p)
-                    # self.board.our_pieces.pop(ind) 
-            # if opponent_action[0] == "SLIDE" and p.current == opponent_action[2]:
+                    piec.status = False
+                    print(f'{piec.current} killed cos {piec.status}')
 
         # Check if we hurt enemey 
-        for o in self.board.opponents: 
-            if o.current == player_action[2] and p in self.board.our_pieces: 
+        for oppo in self.board.opponents: 
+            if oppo.current == player_action[2] and (p in self.board.our_pieces) and p.status: 
                 print("battled!")
-                if p.name == "r" and o.name == "s" or p.name == "p" and o.name == "r" or p.name == "s" and o.name == "p":
+                if p.name == "r" and oppo.name == "s" or p.name == "p" and oppo.name == "r" or p.name == "s" and oppo.name == "p":
                     print("p1")
-                    o.status = False
+                    oppo.status = False
+                    print(f'{oppo.current} killed cos {oppo.status}')
                     # ind = self.board.opponents.index(o)
                     # self.board.opponents.pop(ind)
-                elif o.name == "r" and p.name == "s" or o.name == "p" and p.name == "r" or o.name == "s" and p.name == "p":
+                elif oppo.name == "r" and p.name == "s" or oppo.name == "p" and p.name == "r" or oppo.name == "s" and p.name == "p":
                     print("p2")
                     p.status = False
+                    print(f'{p.current} killed cos {p.status}')
                     # ind = self.board.our_pieces.index(p)
                     # self.board.our_pieces.pop(ind) 
 
@@ -501,11 +491,13 @@ class Player:
                     # ind = self.board.our_pieces.index(p)
                     # self.board.our_pieces.pop(ind)
                     p.status = False
+                    print(f'{p.current} killed cos {p.status}')
                 elif p.name == "r" and pie.name == "s" or p.name == "p" and pie.name == "r" or p.name == "s" and pie.name == "p":
                     print("p2")
                     # ind = self.board.our_pieces.index(p)
                     # self.board.our_pieces.pop(ind) 
                     pie.status = False
+                    print(f'{pie.current} killed cos {pie.status}')
 
         # opp killed itself
         for opp in self.board.opponents: 
@@ -514,10 +506,12 @@ class Player:
                 if opp.name == "r" and o.name == "s" or opp.name == "p" and o.name == "r" or opp.name == "s" and o.name == "p":
                     print("p1")
                     o.status = False
+                    print(f'{o.current} killed cos {o.status}')
                     # ind = self.board.opponents.index(o)
                     # self.board.opponents.pop(ind)
                 elif o.name == "r" and opp.name == "s" or o.name == "p" and opp.name == "r" or o.name == "s" and opp.name == "p":
                     print("p2")
                     opp.status = False
+                    print(f'{opp.current} killed cos {opp.status}')
                     # ind = self.board.opponents.index(o)
                     # self.board.opponents.pop(ind)
