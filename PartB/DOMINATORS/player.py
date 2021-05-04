@@ -35,7 +35,7 @@ class Player:
         self.turn = 0 
         self.first_turn = True 
         self.throws = 0 
-        self.max_depth = 4
+        self.max_depth = 3
 
     def check_piece(self, position):
         # print("aaaa")
@@ -101,87 +101,85 @@ class Player:
         # how to check the game if its ended? right it here
         
         # then we need to repeat minimax for another piece
-        if current_depth == self.max_depth or self.ended():
-                                         #?? how to ceck end of game
-            return eval(self)
-            # Evaluation function
-
-            # print("pop")
-            # future_piece = Piece()
-            # return self.check_piece(current_piece)  #do we need this anymore? 
-           
-        # children = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
-        
-        future_piece = None
-        
-        # get all possible actions and stored them in a list (NOT IMPLEMENTED YET)
-        
-        shuffle(self.board.vectors) #random
-        max_value = -sys.maxsize if maximising else sys.maxsize
-        for cell in self.board.vectors:
-            child = (current_piece.current[0] + cell[0], current_piece.current[1] + cell[1])
-            eval_child, future_piece = self.minimax(child, current_depth + 1, not maximising, alpha, beta)
-
-            if maximising and max_val < eval_child:
-                max_val = eval_child
-                future_piece =  cell
-                alpha = max(alpha, max_value)
-                if beta <= alpha:
-                    break
-            
-            elif (not maximising) and max_val > eval_child:
-                max_val = eval_child
-                future_piece =  cell
-                beta = min(beta, max_value)
-                if beta <= alpha:
-                    break
-
-
-        return future_piece, max_val
 
        
-        """ if maximising: 
-            max_val = -sys.maxsize
-            for c in self.board.vectors: 
-                child = (current_piece.current[0] + c[0], current_piece.current[1] + c[1])
-                if child in self.board.spots:
-                    future_piece = Piece(child, current_piece.name)
-                    score = self.minimax(future_piece, depth + 1, False)
-                    # if score > 0:
-                    # print(f'{current_piece.current} == {child}  {score}')
-                   
-            max_val = max(max_val, score[1])
-           
-           # perform a beta test
-           
-            if max_val >= beta:
-                return (future_piece, max_val)
-            # print("highest")
-            # perform a alpha test
-            if max_val > alpha:
-                alpha = max_value
-            
-        else: 
-            min_val = sys.maxsize
-            for c in self.board.vectors: 
-                child = (current_piece.current[0] + c[0], current_piece.current[1] + c[1])
-                if child in self.board.spots:
-                    future_piece = Piece(child, current_piece.name)
-                    score = self.minimax(future_piece, depth + 1, True)
-                    # print("OPOPO")
-                    print(f'score = {score[1]}')
-            min_val = min(min_val, score[1])
-            # perform an alaph test
-            if min_val <= alpha:
-                return (future_piece, max_val)
-            # print("highest")
-            # perform a beta test
-            if min_val < beta:
-                beta = max_value """
+        if current_depth == self.max_depth: # or self.ended()
+                                         #?? how to ceck end of game
 
-    
-    
-    
+            # print("e")
+            return self.eval()  
+            # Evaluation function
+        
+        future_piece = None
+        # get all possible actions and stored them in a list (NOT IMPLEMENTED YET)
+        # print("else")
+        shuffle(self.board.vectors) #random
+        max_value = -sys.maxsize if maximising else sys.maxsize
+        one = False
+        for cell in self.board.vectors:
+            # print(current_piece.current[0])
+            child = (current_piece.current[0] + cell[0], current_piece.current[1] + cell[1])
+            if child in self.board.spots: 
+                child_piece = Piece(child, current_piece.name)
+                
+                eval_child = self.minimax(child_piece, current_depth + 1, not maximising, alpha, beta)
+                # print("A")
+
+                
+                if (type(eval_child) == int): 
+                    # print("is int")
+                    # print(f'eval = {eval_child}')
+                    one = True
+                # else: 
+                #     print("not int")
+                #     print(f'eval = {eval_child}')
+                    
+                
+                
+                # print(max_value)
+                if one and maximising and max_value < eval_child:
+                    # print("AA")
+                    max_value = eval_child
+                    future_piece =  child
+                    alpha = max(alpha, max_value)
+                    one = False
+                    if beta <= alpha:
+                        # print("b1")
+                        break
+                elif not one and maximising and max_value < eval_child[1]:
+                    # print("AA")
+                    max_value = eval_child[1]
+                    future_piece =  child
+                    alpha = max(alpha, max_value)
+                    one = False
+                    if beta <= alpha:
+                        # print("b1")
+                        break
+                
+                elif one and (not maximising) and max_value > eval_child:
+                    # print("Bb")
+                    max_value = eval_child
+                    future_piece =  child
+                    beta = min(beta, max_value)
+                    one = False
+                    if beta <= alpha:
+                        # print("b2")
+                        break
+                elif not one and (not maximising) and max_value > eval_child[1]:
+                    # print("Bb")
+                    max_value = eval_child[1]
+                    future_piece =  child
+                    beta = min(beta, max_value)
+                    one = False
+                    if beta <= alpha:
+                        # print("b2")
+                        break
+            
+
+        # print("end")
+        #fture_piece removed
+        # print(future_piece)
+        return future_piece , max_value
 
     # evaluate the pair of actions using payoff matrix
     def eval(self): 
@@ -202,15 +200,13 @@ class Player:
             if (not p.status):
                 utility -= 1
 
-        eval += our_piece_dic['r'] - opp_piece_dic['p']
-        eval += our_piece_dic['s'] - opp_piece_dic['r']
-        eval += our_piece_dic['p'] - opp_piece_dic['s'] 
+        eval_val += our_piece_dic['r'] - opp_piece_dic['p']
+        eval_val+= our_piece_dic['s'] - opp_piece_dic['r']
+        eval_val += our_piece_dic['p'] - opp_piece_dic['s'] 
         
         # Evaluating and making it heuristic
-        
-        
-        
-        return eval; 
+        # print(f'here is {eval_val}')
+        return eval_val
         
 
     # this function will check the rate of danger for getting distroyed by the opponent piece like how close is the dominant piece to it
@@ -228,22 +224,25 @@ class Player:
 
         highest = -sys.maxsize
         piece = None
+        a = True
+        
         for p in self.board.our_pieces: 
-           new_score = self.minimax(p, 5, True)
-           if new_score > highest: 
-               highest = new_score
-               piece = p
+           print(p.current)
+            # def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
+           fp, new_score = self.minimax(p, 0, True)
+           if fp: 
+               print(f'p, fp = {p}, {fp}')
+           
+               return p, fp
+        #    print("P")
+        #    if new_score > highest: 
+        #        print("high")
+        #        highest = new_score
+        #        piece = fp
+        #        break
+        # if piece:
+        #     return piece
         
-        return (piece, highest) # why we need to return the highest here?? 
-        
-    # def estimate(self, our, opponent):
-    #     if our in self.board.opponents:
-    #         return 1
-    #     elif opponent in self.board.our_pieces: 
-    #         return - 1
-    #     else: 
-    #         return 0 
-
     def throw(self, sent): 
         token = ["r", "s", "p"]
         self.turn += 1
@@ -321,7 +320,7 @@ class Player:
         elif self.turn % 2 ==  0 and self.throws < 9: 
             # How to calculate new throw position
             token = ["r", "s", "p"]
-            self.turn += 1
+            # self.turn += 1
             self.throws += 1
             if (self.move == "ADD"):
                 new = (self.start[0] + 1, self.start[1])
@@ -340,6 +339,11 @@ class Player:
                 return ("THROW", token[r_index], (self.start[0], self.start[1])) 
         while not sent: 
             self.turn += 1
+            
+            #  minimax(self, current_piece, current_depth, maximising,
+            # return future_piece, max_val
+            piece = self.best_move()
+            # return ("THROW", "r", (self.start[0], self.start[1])) 
     
              
             # if its our turn
@@ -348,19 +352,20 @@ class Player:
             # max, y, x, depth = max(-sys.maxsize, sys.maxsize)
 
             # select a heuristic move when we have cutoff in the tree
-            fp, mv = self.minimax()
-            if(depth > self.max_depth):
-                 x, y = self.best_move()
+            # fp, mv = self.minimax()
+            # if(depth > self.max_depth):
+            #      x, y = self.best_move()
             
             # print("POPOPOPO")
             # print(piece)
             
             
-            # to_move = piece[0] 
-            # move = piece[1] 
+            to_move = piece[0]
+            move = piece[1]
+
                 
                 # do we need to add the what_throw(self) here and then move? I think so haha
-            sent = self.game_ended()
+            # sent = self.game_ended()
             return ("SLIDE", to_move.current, move)
              # please check if this is correct!!! I wanted to check if the game finished
             
