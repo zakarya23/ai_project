@@ -90,25 +90,28 @@ class Player:
                 
                 eval_child = self.minimax(child, current_depth + 1, not maximising, alpha, beta)
                 # print("A")
+                # print(f'evallll = {eval_child}')
 
                 
                 if (type(eval_child) == int): 
                     # print("is int")
-                    # print(f'eval = {eval_child}')
+                    # print(f'evalhahah = {eval_child}')
                     one = True
                 # else: 
                 #     print("not int")
-                #     print(f'eval = {eval_child}')
+                    
                     
                 
                 
-                # print(max_value)
+                # # print(max_value)
+                # print(f'eval = {eval_child}')
+
                 if one and maximising and max_value < eval_child:
                     # print("AA")
                     max_value = eval_child
                     future_piece =  child
                     alpha = max(alpha, max_value)
-                    one = False
+                    # one = False
                     if beta <= alpha:
                         # print("b1")
                         break
@@ -127,7 +130,7 @@ class Player:
                     max_value = eval_child
                     future_piece =  child
                     beta = min(beta, max_value)
-                    one = False
+                    # one = False
                     if beta <= alpha:
                         # print("b2")
                         break
@@ -142,7 +145,7 @@ class Player:
                         break
             
 
-
+        # print(f'futute = {future_piece} max = {max_value}')
         return future_piece , max_value
 
     def best_move(self): 
@@ -161,16 +164,18 @@ class Player:
         #     print(f'opps {p.current} {p.status}')
         for locations in self.board.our.keys():
             pieces = self.board.our[locations]
-        
-            for p in pieces: 
-                # print(f'{p.current} {p.status}')
-                # def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
-            
+            # print(f'pieces= {pieces}, locations = {locations}')
+            if len(pieces) > 0:
+                for p in pieces: 
+                    # print(f'p = {p}')
+                    # print(f'{p.current} {p.status}')
+                    # def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
+                
                     # print("used")
-                fp, new_score = self.minimax(locations, 0, True)
-                if fp: 
-                    # print(f'p, fp = {p}, {fp}')
-                    return p, fp
+                    fp, new_score = self.minimax(locations, 0, True)
+                    if fp: 
+                        # print(f'p, fp = {p}, {fp}')
+                        return locations, fp
                     
            
             
@@ -228,23 +233,117 @@ class Player:
 
             return ("SLIDE", to_move, move)
 
-    def update_throw(self, states, name, location): 
-        if location not in states: 
-            states[location] = [] 
+    def battle_ourself(self, states, location, name):
+        pairs = {'r':'s', 'p': 'r', 's':'p'}
+        prev_pieces = states[location][0]
+        new_piece = states[location][-1]
+        if pairs[new_piece] == prev_pieces:
+            # We remove all prev pieces and add new piece 
+            states[location].clear()
             states[location].append(name)
-        else: 
+        elif new_piece == prev_pieces: 
             states[location].append(name)
+    
+    def battle_opponent(self, states, opponent, opponent_pieces, name, location): 
+        pairs = {'r':'s', 'p': 'r', 's':'p'}
+        if len(opponent_pieces) > 0: 
+            opp_piece = opponent_pieces[0] 
+            if pairs[name] == opp_piece:
+                # New piece wins over opp and is added 
+                opponent[location].clear()
+                states[location] = [] 
+                states[location].append(name)
+            elif name == opp_piece:
+                states[location] = [] 
+                states[location].append(name)
 
-    def update_slide(self, states, old_location, new_location):
-        pieces = states[old_location]
-        # Big assumption that we choose first element we choose
-        first_piece = pieces[0] 
-        states[old_location].pop(0)
-        if new_location not in states:
+    def update_throw(self, states, opponent, name, location): 
+        # pairs = {'r':'s', 'p': 'r', 's':'p'}
+        if location not in states: 
+            if location in opponent and len(opponent[location]) > 0: 
+                opponent_pieces = opponent[location]
+                self.battle_opponent(states, opponent, opponent_pieces[0] , name, location)
+            else: 
+                states[location] = [] 
+                states[location].append(name)
+
+        else:
+            # Thrown on ours
+            self.battle_ourself(states, location, name)
+            # Thrown on opponent
+            # self.battle_at_throw(opponent, location, name)
+
+        # print(f'states {states}')
+
+    def update_slide(self, states, opponent, old_location, new_location):
+        pairs = {'r':'s', 'p': 'r', 's':'p'}
+        # Can only be one type of piece 
+        moved_piece = states[old_location].pop(0)
+        # print(f'pieces = {pieces}')
+
+        # Check if we slid onto our pieces 
+        # Means something was there before
+        if (new_location in states) and len(states[new_location]) > 1: 
+            prev_pieces = states[new_location]
+            prev_piece = prev_pieces[0] 
+            if pairs[moved_piece] == prev_piece: 
+                # New piece won and killed all our others 
+                states[new_location].clear() 
+                # Killed opponents too
+                opponent[new_location].clear() 
+                states[new_location].append(moved_piece)
+            elif moved_piece == prev_piece: 
+                states[new_location].append(moved_piece)
+        # Else nothing was there and nothing to worry about 
+        else:
             states[new_location] = [] 
-            states[new_location].append(first_piece)
-        else: 
-            states[new_location].append(first_piece)
+            states[new_location].append(moved_piece)
+
+    def verse(self, player, opponent):
+        pairs = {'r':'s', 'p': 'r', 's':'p'}
+        for p1_location in player:
+
+            
+
+            # Check if p1 location is even present in p2
+            if p1_location in opponent: 
+                p2_pieces = opponent[p1_location]
+            else: 
+                continue
+               
+            p1_pieces = player[p1_location]
+
+            # print(f'location {p1_location} , p1_pieces = {p1_pieces} p2_pieces = {p2_pieces}') 
+
+            # Check if something was even in both before comparing 
+            if len(p1_pieces) > 0 and len(p2_pieces) > 0:
+                p1_killed = [] 
+                p2_killed = [] 
+                for p1 in p1_pieces: 
+                    for p2 in p2_pieces:
+                        # print(f'p1 = {p1} p1 = {p2}') 
+                        if pairs[p1] == p2: 
+                            # P1 killed p2 
+                            
+                            p2_killed.append(p2_pieces.index(p2))
+                            # print(f'{p2} killed and {p2_killed}')
+                        elif pairs[p2] == p1: 
+                            # P2 KILLED P1 
+                           
+                            p1_killed.append(p1_pieces.index(p1))
+                            # print(f'{p1} killed and {p1_killed}')
+                    for i in p2_killed:
+                        # print(f' i = {i}')
+                        if len(opponent[p1_location]) > 0: 
+                            
+                            a = opponent[p1_location].pop(i)
+                            # print(f'killed = {a}')
+
+                for j in p1_killed: 
+                    # print(f' j = {j}')
+                    if len(opponent[p1_location]) > 0: 
+                        a = player[p1_location].pop(j)
+                        # print(f'killed2 = {a}')
 
         
 
@@ -256,64 +355,34 @@ class Player:
         The parameter opponent_action is the opponent's chosen action,
         and player_action is this instance's latest chosen action.
         """
-        pairs = {'r':'s', 'p': 'r', 's':'p'}
         
         # Update ours first 
         if player_action[0] == 'THROW':
             name = player_action[1] 
             location = player_action[2]
-            self.update_throw(self.board.our, name, location)
+            self.update_throw(self.board.our, self.board.opponent, name, location)
+
+
         else: 
             old_location = player_action[1] 
             new_location = player_action[2] 
-            self.update_slide(self.board.our, old_location, new_location)
+            self.update_slide(self.board.our, self.board.opponent, old_location, new_location)
    
         # Update opponents
         if opponent_action[0] == 'THROW':
             name = opponent_action[1] 
             location = opponent_action[2]
-            self.update_throw(self.board.opponent, name, location)
+            self.update_throw(self.board.opponent, self.board.our, name, location)
         else: 
             old_location = opponent_action[1] 
             new_location = opponent_action[2] 
-            self.update_slide(self.board.opponent, old_location, new_location)
+            self.update_slide(self.board.opponent, self.board.our, old_location, new_location)
 
         # Check battles against opponent
-        for p1_location in self.board.our: 
-            for p2_location in self.board.opponent: 
-                if p1_location == p2_location: 
-                    p1_pieces = self.board.our[p1_location]
-                    p2_pieces = self.board.opponent[p2_location]
+        self.verse(self.board.our, self.board.opponent)
+        self.verse(self.board.opponent, self.board.our)
+        self.verse(self.board.our, self.board.our)
+        self.verse(self.board.opponent, self.board.opponent)
 
-                    p1_killed = [] 
-                    p2_killed = [] 
-                    for p1 in p1_pieces: 
-                        for p2 in p2_pieces: 
-                            if pairs[p1] == p2: 
-                                # P1 killed p2 
-                                p2_killed.append(p2_pieces.index(p2))
-                            elif pairs[p2] == p1: 
-                                # P2 KILLED P1 
-                                p1_killed.append(p1_pieces.index(p1))
-                        for i in p2_killed: 
-                            self.board.opponent[p2_location].pop(i)
-
-                    for j in p1_killed: 
-                            self.board.our[p1_location].pop(j)
-
-                        
-                            
-
-
-
-            
-
-            
-
-
-
-         
-
-        
-
-     
+        # print(f'final = {self.board.our}')
+        # print(f'opp = {self.board.opponent}')
