@@ -3,10 +3,8 @@ from DOMINATORS.piece_state import PieceState
 class Board:
     def __init__(self): 
         # List of piece classes
-        self.our_pieces = [] 
-        self.our_locations = [] 
-        self.opponents = [] 
-        self.opp_locations = []
+        self.our = {} 
+        self.opponent = {} 
         self.spots = self.initilaise_board()
         self.max_depth = 4
         self.vectors = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
