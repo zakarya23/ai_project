@@ -36,13 +36,54 @@ class Player:
         self.throws = 0 
         self.max_depth = 3
 
+    def piece_dict(self):
+        opp_piece_dic = {'r': 0, 'p': 0, 's': 0}
+        our_piece_dic = {'r': 0, 'p': 0, 's': 0}
+        
+        # throw = None # name of the selected piece that we going to throw
+        ours = self.board.our
+        opponent = self.board.opponent
+        for location in opponent:
+            for p in opponent[location]:
+                opp_piece_dic[p] += 1
+
+        for location in ours:
+            for p in ours[location]:
+                our_piece_dic[p] += 1
+
+        return opp_piece_dic, our_piece_dic
+
+    def throw_what(self):
+        throw = None
+        opp_piece_dic, our_piece_dic = self.piece_dict()
+        # these will make us win faster and increase the chance of winning instead of random throwing
+        
+        # we need rock to kill the scissors
+        if our_piece_dic['r'] == 0 and opp_piece_dic['s'] > 0:
+            throw = 'r'
+        # we need paper to kill the rocks
+        if our_piece_dic['p'] == 0 and opp_piece_dic['r'] > 0:
+            throw = 'p'
+      
+        # we need scissor to kill the paper
+        if our_piece_dic['s'] == 0 and opp_piece_dic['p'] > 0:
+            throw = 's'
+
+        if throw:
+            return throw
+        else: 
+            # Choose random piece
+            token = ["r", "s", "p"]
+            r_index = randrange(len(token))
+            return token[r_index]
+
     def eval(self): 
         eval_val = 0
         utility = 0
 
         # Utility: basically will check for a chance of winning like 
         # if the game ended: how to write this? 
-        # opp_piece_dic, our_piece_dic = self.piece_dict()
+        opp_piece_dic, our_piece_dic = self.piece_dict()
         
         # for p in self.board.opponents:
         #     # if it got killed
@@ -54,12 +95,13 @@ class Player:
         #     if (not p.status):
         #         utility -= 1
 
-        # eval_val += our_piece_dic['r'] - opp_piece_dic['p']
-        # eval_val+= our_piece_dic['s'] - opp_piece_dic['r']
-        # eval_val += our_piece_dic['p'] - opp_piece_dic['s'] 
+        eval_val += our_piece_dic['r'] - opp_piece_dic['p']
+        eval_val+= our_piece_dic['s'] - opp_piece_dic['r']
+        eval_val += our_piece_dic['p'] - opp_piece_dic['s'] 
         
         # Evaluating and making it heuristic
-        # print(f'here is {eval_val}')
+        # if eval_val > 0:
+        #     print(f'here is {eval_val}')
         return eval_val
 
     def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
@@ -113,7 +155,7 @@ class Player:
     def best_move(self): 
 
         highest = -sys.maxsize
-        piece = None
+        # piece = None
 
         for locations in self.board.our.keys():
             pieces = self.board.our[locations]
@@ -135,18 +177,15 @@ class Player:
         token = ["r", "s", "p"]
         sent = False
 
-        # put your code here
         # How to decide whether to throw or slide 
         if self.turn % 2 ==  0 and self.first_turn: 
             self.first_turn = False
-            # self.turn += 1
+            # First piece chosen randomly 
             r_index = randrange(len(token))
             self.throws += 1
             sent = True
             return ("THROW", token[r_index], (self.start[0], self.start[1])) 
         elif self.turn % 2 ==  0 and self.throws < 9: 
-            # How to calculate new throw position
-            token = ["r", "s", "p"]
             self.turn += 1
             self.throws += 1
             if (self.move == "ADD"):
@@ -159,18 +198,16 @@ class Player:
                 if new in self.board.spots:
                     sent = True 
                     self.start = new
-
-            r_index = randrange(len(token))
+            piece = self.throw_what()
             if sent:
-                return ("THROW", token[r_index], (self.start[0], self.start[1])) 
+                return ("THROW", piece, (self.start[0], self.start[1])) 
         while not sent: 
             self.turn += 1
             piece = self.best_move()
             to_move = piece[0]
             move = piece[1]
-
-
-            return ("SLIDE", to_move, move)
+            if to_move and move:
+                return ("SLIDE", to_move, move)
 
     def battle_ourself(self, states, location, name):
         pairs = {'r':'s', 'p': 'r', 's':'p'}
