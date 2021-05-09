@@ -211,13 +211,17 @@ class Player:
 
     def battle_ourself(self, states, location, name):
         pairs = {'r':'s', 'p': 'r', 's':'p'}
-        prev_pieces = states[location][0]
-        new_piece = states[location][-1]
-        if pairs[new_piece] == prev_pieces:
-            # We remove all prev pieces and add new piece 
-            states[location].clear()
-            states[location].append(name)
-        elif new_piece == prev_pieces: 
+
+        if len(states[location]) > 0:
+            prev_pieces = states[location][0]
+            new_piece = states[location][-1]
+            if pairs[new_piece] == prev_pieces:
+                # We remove all prev pieces and add new piece 
+                states[location].clear()
+                states[location].append(name)
+            elif new_piece == prev_pieces: 
+                states[location].append(name)
+        else: 
             states[location].append(name)
     
     def battle_opponent(self, states, opponent, opponent_pieces, name, location): 
