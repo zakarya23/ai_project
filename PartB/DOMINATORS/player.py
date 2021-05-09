@@ -78,7 +78,6 @@ class Player:
         
         future_piece = None
         # get all possible actions and stored them in a list (NOT IMPLEMENTED YET)
-        # print("else")
         shuffle(self.board.vectors) #random
         max_value = -sys.maxsize if maximising else sys.maxsize
         one = False
@@ -86,66 +85,39 @@ class Player:
             # print(current_piece.current[0])
             child = (current_piece[0] + cell[0], current_piece[1] + cell[1])
             if child in self.board.spots: 
-                # child_piece = Piece(child, current_piece.name)
-                
                 eval_child = self.minimax(child, current_depth + 1, not maximising, alpha, beta)
-                # print("A")
-                # print(f'evallll = {eval_child}')
-
-                
                 if (type(eval_child) == int): 
-                    # print("is int")
-                    # print(f'evalhahah = {eval_child}')
                     one = True
-                # else: 
-                #     print("not int")
-                    
-                    
-                
-                
-                # # print(max_value)
-                # print(f'eval = {eval_child}')
 
                 if one and maximising and max_value < eval_child:
-                    # print("AA")
                     max_value = eval_child
                     future_piece =  child
                     alpha = max(alpha, max_value)
-                    # one = False
                     if beta <= alpha:
-                        # print("b1")
                         break
                 elif not one and maximising and max_value < eval_child[1]:
-                    # print("AA")
                     max_value = eval_child[1]
                     future_piece =  child
                     alpha = max(alpha, max_value)
                     one = False
                     if beta <= alpha:
-                        # print("b1")
                         break
                 
                 elif one and (not maximising) and max_value > eval_child:
-                    # print("Bb")
                     max_value = eval_child
                     future_piece =  child
                     beta = min(beta, max_value)
-                    # one = False
                     if beta <= alpha:
-                        # print("b2")
                         break
+
                 elif not one and (not maximising) and max_value > eval_child[1]:
-                    # print("Bb")
                     max_value = eval_child[1]
                     future_piece =  child
                     beta = min(beta, max_value)
                     one = False
                     if beta <= alpha:
-                        # print("b2")
                         break
-            
 
-        # print(f'futute = {future_piece} max = {max_value}')
         return future_piece , max_value
 
     def best_move(self): 
@@ -168,9 +140,7 @@ class Player:
             if len(pieces) > 0:
                 for p in pieces: 
                     # print(f'p = {p}')
-                    # print(f'{p.current} {p.status}')
-                    # def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
-                
+                 
                     # print("used")
                     fp, new_score = self.minimax(locations, 0, True)
                     if fp: 
@@ -208,7 +178,7 @@ class Player:
         elif self.turn % 2 ==  0 and self.throws < 9: 
             # How to calculate new throw position
             token = ["r", "s", "p"]
-            # self.turn += 1
+            self.turn += 1
             self.throws += 1
             if (self.move == "ADD"):
                 new = (self.start[0] + 1, self.start[1])
@@ -216,7 +186,7 @@ class Player:
                     sent = True
                     self.start = new
             else: 
-                new =  self.start = (self.start[0] - 1, self.start[1])
+                new = (self.start[0] - 1, self.start[1])
                 if new in self.board.spots:
                     sent = True 
                     self.start = new
@@ -278,74 +248,47 @@ class Player:
     def update_slide(self, states, opponent, old_location, new_location):
         pairs = {'r':'s', 'p': 'r', 's':'p'}
         # Can only be one type of piece 
-        moved_piece = states[old_location].pop(0)
-        # print(f'pieces = {pieces}')
+
+        if old_location not in states:
+            return None
+        old_pieces = states[old_location]
+
+        if len(old_pieces) == 0: 
+            states.pop(old_location)
+            return None
+        else:
+            moved_piece = old_pieces.pop(0)
 
         # Check if we slid onto our pieces 
         # Means something was there before
-        if (new_location in states) and len(states[new_location]) > 1: 
+        if (new_location in states) and len(states[new_location]) > 0: 
             prev_pieces = states[new_location]
             prev_piece = prev_pieces[0] 
             if pairs[moved_piece] == prev_piece: 
                 # New piece won and killed all our others 
                 states[new_location].clear() 
                 # Killed opponents too
-                opponent[new_location].clear() 
+                if new_location in opponent:
+                    opponent[new_location].clear() 
                 states[new_location].append(moved_piece)
             elif moved_piece == prev_piece: 
                 states[new_location].append(moved_piece)
-        # Else nothing was there and nothing to worry about 
+        # Else we dont have it in. So we check if opponent has it.
         else:
-            states[new_location] = [] 
-            states[new_location].append(moved_piece)
-
-    def verse(self, player, opponent):
-        pairs = {'r':'s', 'p': 'r', 's':'p'}
-        for p1_location in player:
-
-            
-
-            # Check if p1 location is even present in p2
-            if p1_location in opponent: 
-                p2_pieces = opponent[p1_location]
+            if (new_location in opponent) and (len(opponent[new_location]) > 0):
+                opp_pieces = opponent[new_location]
+                opp_piece = opp_pieces[0] 
+                if pairs[moved_piece] == opp_piece:
+                    # New piece won and killed all our others 
+                    opponent[new_location].clear() 
+                    states[new_location] = [] 
+                    states[new_location].append(moved_piece)
+                elif moved_piece == opp_piece:
+                    states[new_location] = [] 
+                    states[new_location].append(moved_piece)
             else: 
-                continue
-               
-            p1_pieces = player[p1_location]
-
-            # print(f'location {p1_location} , p1_pieces = {p1_pieces} p2_pieces = {p2_pieces}') 
-
-            # Check if something was even in both before comparing 
-            if len(p1_pieces) > 0 and len(p2_pieces) > 0:
-                p1_killed = [] 
-                p2_killed = [] 
-                for p1 in p1_pieces: 
-                    for p2 in p2_pieces:
-                        # print(f'p1 = {p1} p1 = {p2}') 
-                        if pairs[p1] == p2: 
-                            # P1 killed p2 
-                            
-                            p2_killed.append(p2_pieces.index(p2))
-                            # print(f'{p2} killed and {p2_killed}')
-                        elif pairs[p2] == p1: 
-                            # P2 KILLED P1 
-                           
-                            p1_killed.append(p1_pieces.index(p1))
-                            # print(f'{p1} killed and {p1_killed}')
-                    for i in p2_killed:
-                        # print(f' i = {i}')
-                        if len(opponent[p1_location]) > 0: 
-                            
-                            a = opponent[p1_location].pop(i)
-                            # print(f'killed = {a}')
-
-                for j in p1_killed: 
-                    # print(f' j = {j}')
-                    if len(opponent[p1_location]) > 0: 
-                        a = player[p1_location].pop(j)
-                        # print(f'killed2 = {a}')
-
-        
+                states[new_location] = [] 
+                states[new_location].append(moved_piece)
 
     def update(self, opponent_action, player_action):
         """
@@ -361,8 +304,6 @@ class Player:
             name = player_action[1] 
             location = player_action[2]
             self.update_throw(self.board.our, self.board.opponent, name, location)
-
-
         else: 
             old_location = player_action[1] 
             new_location = player_action[2] 
@@ -377,12 +318,3 @@ class Player:
             old_location = opponent_action[1] 
             new_location = opponent_action[2] 
             self.update_slide(self.board.opponent, self.board.our, old_location, new_location)
-
-        # Check battles against opponent
-        self.verse(self.board.our, self.board.opponent)
-        self.verse(self.board.opponent, self.board.our)
-        self.verse(self.board.our, self.board.our)
-        self.verse(self.board.opponent, self.board.opponent)
-
-        # print(f'final = {self.board.our}')
-        # print(f'opp = {self.board.opponent}')

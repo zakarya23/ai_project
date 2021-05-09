@@ -4,7 +4,7 @@ class Board:
     def __init__(self): 
         # List of piece classes
         self.our = {} 
-        self.opponent = {} 
+        self.opponent = {}  
         self.spots = self.initilaise_board()
         self.max_depth = 4
         self.vectors = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
