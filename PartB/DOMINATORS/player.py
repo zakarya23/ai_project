@@ -63,16 +63,7 @@ class Player:
         return eval_val
 
     def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
-               
-        # how to check the game if its ended? right it here
-        
-        # then we need to repeat minimax for another piece
-
-       
-        if current_depth == self.max_depth: # or self.ended()
-                                         #?? how to ceck end of game
-
-            # print("e")
+        if current_depth == self.max_depth:
             return self.eval()  
             # Evaluation function
         
@@ -82,7 +73,6 @@ class Player:
         max_value = -sys.maxsize if maximising else sys.maxsize
         one = False
         for cell in self.board.vectors:
-            # print(current_piece.current[0])
             child = (current_piece[0] + cell[0], current_piece[1] + cell[1])
             if child in self.board.spots: 
                 eval_child = self.minimax(child, current_depth + 1, not maximising, alpha, beta)
@@ -121,42 +111,21 @@ class Player:
         return future_piece , max_value
 
     def best_move(self): 
-        #heuristic dict
-        
-        # store all the empty cells
 
-        # highest = -sys.maxsize
-        # piece = None
-        # # a = True
-        # count = 0 
-        # for p in self.board.our_pieces: 
-        #     print(f'ours {p.current} {p.status}')
+        highest = -sys.maxsize
+        piece = None
 
-        # for p in self.board.opponents: 
-        #     print(f'opps {p.current} {p.status}')
         for locations in self.board.our.keys():
             pieces = self.board.our[locations]
-            # print(f'pieces= {pieces}, locations = {locations}')
             if len(pieces) > 0:
-                for p in pieces: 
-                    # print(f'p = {p}')
-                 
-                    # print("used")
+                for _ in pieces: 
+
                     fp, new_score = self.minimax(locations, 0, True)
-                    if fp: 
-                        # print(f'p, fp = {p}, {fp}')
-                        return locations, fp
-                    
-           
-            
-        #    print("P")
-        #    if new_score > highest: 
-        #        print("high")
-        #        highest = new_score
-        #        piece = fp
-        #        break
-        # if piece:
-        #     return piece
+                    if new_score > highest:
+                        highest = new_score 
+                        if fp: 
+                            piece = fp
+                return locations, fp
 
     def action(self):
         """
