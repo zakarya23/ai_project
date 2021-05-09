@@ -3,16 +3,12 @@ from DOMINATORS.piece_state import PieceState
 class Board:
     def __init__(self): 
         # List of piece classes
-        self.our_pieces = [] 
-        self.our_locations = [] 
-        self.opponents = [] 
-        self.opp_locations = []
+        self.our = {} 
+        self.opponent = {}  
         self.spots = self.initilaise_board()
         self.max_depth = 4
         self.vectors = [(0,1),(0,-1),(1,-1),(1,0),(-1,0),(-1,1)]
-        self.winning_positions = []
-        # self.get_winning_position()
-        
+        self.winning_positions = []        
 
     def initilaise_board(self): 
         spots = set() 
@@ -24,8 +20,6 @@ class Board:
             q = -4 
             qbottom = 4 
             for _ in range(0, row + 1): 
-                # state = PieceState("", (r, q), "")
-                # state2 = PieceState("", (rbottom, qbottom), "")
                 spots.add((r, q))
                 spots.add((rbottom, qbottom))
                 q += 1
