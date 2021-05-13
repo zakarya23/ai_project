@@ -10,6 +10,9 @@ from matplotlib import pyplot as plt
 from IPython.display import clear_output
 import sys
 
+# need to make sure not to kill our pieces
+# improve throws 
+
 
 class Player:
     def __init__(self, player):
@@ -35,6 +38,9 @@ class Player:
         self.first_turn = True 
         self.throws = 0 
         self.max_depth = 3
+        # self.opp_before = 0 
+        # self.opp_after = 0 
+        self.pairs = {'r':'s', 'p': 'r', 's':'p'}
 
     def piece_dict(self):
         opp_piece_dic = {'r': 0, 'p': 0, 's': 0}
@@ -56,15 +62,13 @@ class Player:
     def throw_what(self):
         throw = None
         opp_piece_dic, our_piece_dic = self.piece_dict()
-        # these will make us win faster and increase the chance of winning instead of random throwing
-        
+
         # we need rock to kill the scissors
         if our_piece_dic['r'] == 0 and opp_piece_dic['s'] > 0:
             throw = 'r'
         # we need paper to kill the rocks
         if our_piece_dic['p'] == 0 and opp_piece_dic['r'] > 0:
             throw = 'p'
-      
         # we need scissor to kill the paper
         if our_piece_dic['s'] == 0 and opp_piece_dic['p'] > 0:
             throw = 's'
@@ -77,36 +81,40 @@ class Player:
             r_index = randrange(len(token))
             return token[r_index]
 
-    def eval(self): 
+    def eval(self, location): 
         eval_val = 0
-        utility = 0
-
         # Utility: basically will check for a chance of winning like 
         # if the game ended: how to write this? 
         opp_piece_dic, our_piece_dic = self.piece_dict()
         
-        # for p in self.board.opponents:
-        #     # if it got killed
-        #     if (not p.status):
-        #         utility += 1
-        
-        # for p in self.board.opponents:
-        #     # if it got killed
-        #     if (not p.status):
-        #         utility -= 1
-
         eval_val += our_piece_dic['r'] - opp_piece_dic['p']
-        eval_val+= our_piece_dic['s'] - opp_piece_dic['r']
+        eval_val += our_piece_dic['s'] - opp_piece_dic['r']
         eval_val += our_piece_dic['p'] - opp_piece_dic['s'] 
+        opponent_pieces = self.board.opponents 
+        our_pieces = self.board.ours
+
+        if (location in opponent_pieces) and (location in our_pieces) and (len(opponent_pieces[location]) > 0) and (len(our_pieces[location]) > 0): 
+            opp = opponent_pieces[location][0]
+            our = our_pieces[location][0]
+            if self.pairs[opp] == our:
+                eval_val -= 1
+            elif self.pairs[our] == opp:
+                eval_val += 1 
+            
+            
+
         
-        # Evaluating and making it heuristic
-        # if eval_val > 0:
-        #     print(f'here is {eval_val}')
+        
+
+
+        
+        
         return eval_val
 
-    def minimax(self, current_piece, current_depth, maximising, alpha: int= - sys.maxsize, beta: int=sys.maxsize):
+    def minimax(self, current_piece, current_depth, maximising, alpha: int=-sys.maxsize, beta: int=sys.maxsize):
         if current_depth == self.max_depth:
-            return self.eval()  
+            # print(curren)
+            return self.eval(current_piece)  
             # Evaluation function
         
         future_piece = None
@@ -150,12 +158,12 @@ class Player:
                     if beta <= alpha:
                         break
 
-        return future_piece , max_value
+        return future_piece, max_value
 
     def best_move(self): 
 
         highest = -sys.maxsize
-        # piece = None
+        piece = None
 
         for locations in self.board.our.keys():
             pieces = self.board.our[locations]
@@ -163,11 +171,13 @@ class Player:
                 for _ in pieces: 
 
                     fp, new_score = self.minimax(locations, 0, True)
+
                     if new_score > highest:
                         highest = new_score 
                         if fp: 
                             piece = fp
-                return locations, fp
+                            # print(f'{piece} ={highest}')
+                return locations, piece
 
     def action(self):
         """
@@ -252,8 +262,6 @@ class Player:
             self.battle_ourself(states, location, name)
             # Thrown on opponent
             # self.battle_at_throw(opponent, location, name)
-
-        # print(f'states {states}')
 
     def update_slide(self, states, opponent, old_location, new_location):
         pairs = {'r':'s', 'p': 'r', 's':'p'}
