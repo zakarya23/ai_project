@@ -1,10 +1,8 @@
 from DOMINATORS.board import Board
 from DOMINATORS.piece import Piece
 from random import randrange
-from DOMINATORS.node import Node
 import numpy as np
 import math
-import random
 from random import shuffle
 from matplotlib import pyplot as plt
 from IPython.display import clear_output
@@ -12,8 +10,6 @@ import sys
 
 # need to make sure not to kill our pieces
 # improve throws 
-
-
 class Player:
     def __init__(self, player):
         """
@@ -37,9 +33,7 @@ class Player:
         self.turn = 0 
         self.first_turn = True 
         self.throws = 0 
-        self.max_depth = 3
-        # self.opp_before = 0 
-        # self.opp_after = 0 
+        self.max_depth = 3 
         self.pairs = {'r':'s', 'p': 'r', 's':'p'}
 
     def piece_dict(self):
@@ -80,41 +74,68 @@ class Player:
             token = ["r", "s", "p"]
             r_index = randrange(len(token))
             return token[r_index]
+    
+    def distance(self, p1, p2): 
+        return math.sqrt((p2[1] - p1[1])**2 + (p2[0] - p1[0])**2)
 
-    def eval(self, location): 
+    def danger(self): 
+        distance = sys.maxsize
+        our = None
+        opp = None
+        for our_loc in self.board.our:
+            for opp_loc in self.board.opponent: 
+                dis = self.distance(our_loc, opp_loc)
+                if dis < distance and (len(self.board.our[our_loc]) > 0) and (len(self.board.opponent[opp_loc]) > 0): 
+                    distance = distance
+                    our = our_loc
+                    opp = opp_loc
+        
+        our_piece = self.board.our[our][0]
+        opp_piece = self.board.opponent[opp][0]
+
+        if self.pairs[opp_piece] == our_piece:
+            # A danger piece is close 
+            return -1 
+        elif self.pairs[our_piece] == opp_piece:
+            return 1 
+        else: 
+            return 0 
+
+    # def check_piece_future(self, location, opponent_pieces, piece): 
+    #     if (location in opponent_pieces) and (len(opponent_pieces[location]) > 0): 
+    #         opp = opponent_pieces[location][0]
+    #         if self.pairs[opp] == piece:
+    #             return -1 
+    #         elif self.pairs[piece] == opp:
+    #             return 1   
+    #         else:
+    #             return 0 
+            
+    def eval(self, location, piece): 
         eval_val = 0
         # Utility: basically will check for a chance of winning like 
         # if the game ended: how to write this? 
         opp_piece_dic, our_piece_dic = self.piece_dict()
-        
+
         eval_val += our_piece_dic['r'] - opp_piece_dic['p']
         eval_val += our_piece_dic['s'] - opp_piece_dic['r']
         eval_val += our_piece_dic['p'] - opp_piece_dic['s'] 
-        opponent_pieces = self.board.opponents 
-        our_pieces = self.board.ours
+        opponent_pieces = self.board.opponent
 
-        if (location in opponent_pieces) and (location in our_pieces) and (len(opponent_pieces[location]) > 0) and (len(our_pieces[location]) > 0): 
-            opp = opponent_pieces[location][0]
-            our = our_pieces[location][0]
-            if self.pairs[opp] == our:
-                eval_val -= 1
-            elif self.pairs[our] == opp:
-                eval_val += 1 
-            
-            
+        # eval_val += self.check_piece_future(location, opponent_pieces, piece)
 
-        
-        
+        # Checking if we are close to the opposite opponent piece 
+        eval_val += self.danger()
 
+        # Idk why I put this here... 
+        eval_val += (our_piece_dic['r'] + our_piece_dic['s'] + our_piece_dic['p'])
+        eval_val -= (opp_piece_dic['p'] + opp_piece_dic['s'] + opp_piece_dic['r'])
 
-        
-        
         return eval_val
 
-    def minimax(self, current_piece, current_depth, maximising, alpha: int=-sys.maxsize, beta: int=sys.maxsize):
+    def minimax(self, current_piece, current_depth, piece, maximising, alpha: int=-sys.maxsize, beta: int=sys.maxsize):
         if current_depth == self.max_depth:
-            # print(curren)
-            return self.eval(current_piece)  
+            return self.eval(current_piece, piece)  
             # Evaluation function
         
         future_piece = None
@@ -125,7 +146,7 @@ class Player:
         for cell in self.board.vectors:
             child = (current_piece[0] + cell[0], current_piece[1] + cell[1])
             if child in self.board.spots: 
-                eval_child = self.minimax(child, current_depth + 1, not maximising, alpha, beta)
+                eval_child = self.minimax(child, current_depth + 1, piece, not maximising, alpha, beta)
                 if (type(eval_child) == int): 
                     one = True
 
@@ -170,7 +191,7 @@ class Player:
             if len(pieces) > 0:
                 for _ in pieces: 
 
-                    fp, new_score = self.minimax(locations, 0, True)
+                    fp, new_score = self.minimax(locations, 0, pieces[0], True)
 
                     if new_score > highest:
                         highest = new_score 
@@ -220,12 +241,10 @@ class Player:
                 return ("SLIDE", to_move, move)
 
     def battle_ourself(self, states, location, name):
-        pairs = {'r':'s', 'p': 'r', 's':'p'}
-
         if len(states[location]) > 0:
             prev_pieces = states[location][0]
             new_piece = states[location][-1]
-            if pairs[new_piece] == prev_pieces:
+            if self.pairs[new_piece] == prev_pieces:
                 # We remove all prev pieces and add new piece 
                 states[location].clear()
                 states[location].append(name)
@@ -235,10 +254,9 @@ class Player:
             states[location].append(name)
     
     def battle_opponent(self, states, opponent, opponent_pieces, name, location): 
-        pairs = {'r':'s', 'p': 'r', 's':'p'}
         if len(opponent_pieces) > 0: 
             opp_piece = opponent_pieces[0] 
-            if pairs[name] == opp_piece:
+            if self.pairs[name] == opp_piece:
                 # New piece wins over opp and is added 
                 opponent[location].clear()
                 states[location] = [] 
@@ -248,7 +266,6 @@ class Player:
                 states[location].append(name)
 
     def update_throw(self, states, opponent, name, location): 
-        # pairs = {'r':'s', 'p': 'r', 's':'p'}
         if location not in states: 
             if location in opponent and len(opponent[location]) > 0: 
                 opponent_pieces = opponent[location]
@@ -260,13 +277,9 @@ class Player:
         else:
             # Thrown on ours
             self.battle_ourself(states, location, name)
-            # Thrown on opponent
-            # self.battle_at_throw(opponent, location, name)
+
 
     def update_slide(self, states, opponent, old_location, new_location):
-        pairs = {'r':'s', 'p': 'r', 's':'p'}
-        # Can only be one type of piece 
-
         if old_location not in states:
             return None
         old_pieces = states[old_location]
@@ -282,7 +295,7 @@ class Player:
         if (new_location in states) and len(states[new_location]) > 0: 
             prev_pieces = states[new_location]
             prev_piece = prev_pieces[0] 
-            if pairs[moved_piece] == prev_piece: 
+            if self.pairs[moved_piece] == prev_piece: 
                 # New piece won and killed all our others 
                 states[new_location].clear() 
                 # Killed opponents too
@@ -296,7 +309,7 @@ class Player:
             if (new_location in opponent) and (len(opponent[new_location]) > 0):
                 opp_pieces = opponent[new_location]
                 opp_piece = opp_pieces[0] 
-                if pairs[moved_piece] == opp_piece:
+                if self.pairs[moved_piece] == opp_piece:
                     # New piece won and killed all our others 
                     opponent[new_location].clear() 
                     states[new_location] = [] 
