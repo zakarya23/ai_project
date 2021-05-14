@@ -124,6 +124,59 @@ def closest_opp(state):
     best_dist = 1/(min(dist_r_s, dist_p_r, dist_s_p))
     return best_dist
 
+
+def win_chance(state):
+    opp_piece_dic, our_piece_dic = piece_dict(state)
+    our_pieces = list(our_piece_dic.values())
+    opp_pieces = list(opp_piece_dic.values())
+
+    chance = 0
+
+    for p in our_pieces:
+        winner = 0
+        
+        for o in opp_pieces:
+            if defeat(p, o) == -1:
+                winner = 1
+            
+            if defeat(p, o) == 1:
+                winner = 1
+        
+        if winner != 1:
+            chance += 1
+    
+    for o in our_pieces:
+        winner = 0
+        
+        for o in opp_pieces:
+            if defeat(o, p) == -1:
+                winner = 1
+            
+            if defeat(p, o) == 1:
+                winner = 1
+        
+        if winner != 1:
+            chance -= 1
+
+    #chance of invicibility 
+    return chance 
+
+    
+
+def defeat(p1, p2):
+    type = ['r', 's', 'p']
+    for t in range(3):
+        w = type[t]
+        l = type[(t+1)%3]
+        if w == p1 and l == p2:
+            return 1
+        
+        if w == p1 and l == p2:
+            return -1
+    return 0
+
+
+
 def eval(state): 
     #evaluation value components
         
@@ -131,9 +184,6 @@ def eval(state):
     token_size = 1 
     compete_size = 2 
     compete_val = 0
-    dang_val = 0
-    eval_val = 0
-    invinciblity = 0
     token_val = 0
     
     # Utility: basically will check for a chance of winning like 
@@ -145,31 +195,31 @@ def eval(state):
     compete_val += our_piece_dic['p'] - opp_piece_dic['s'] 
     # opponent_pieces = self.board.opponent
     
-    # dist_val = closest_opp(state)
-    
-#     if number of our throws == 0 and number of opponent throws == 0:
-#         invinciblity = 10
+    dist_val = closest_opp(state)
+    invincible = win_chance(state)
+    if number of our throws == 0 and number of opponent throws == 0:
+        invinciblity = 10
 
-# # board state where opponent has no throws but player does have
-#     elif opponent throw == 0:
-#     # If they currently have a more invinvible tokens but we can throw opposite type to negate so half the weight
-#         if invincible < 0:
-#             invinciblity = 5
-#     elif our number of throws == 0:
-#     # If they currently have a more invinvible tokens but we can throw opposite type to negate so half the weight
-#         if invincible > 0:
-#             invinciblity = 5
+# board state where we still got throws but our opponent does not
+    elif opponent throw == 0:
+      
+        if invincible < 0:
+            invinciblity = 5
+    elif our number of throws == 0:
+      
+        if invincible > 0:
+            invinciblity = 5
     
-    # eval_val += self.check_piece_future(location, opponent_pieces, piece)
+     #eval_val += self.check_piece_future(location, opponent_pieces, piece)
 
     # Checking if we are close to the opposite opponent piece 
-    dang_val += danger(state)
+    dang_val = danger(state)
 
-    # Idk why I put this here... 
+      
     token_val += len(our_piece_dic.values())
     token_val -= len(opp_piece_dic.values())
 
-    # eval_val = (token_val * token_size) + (dang_val) + (inviciblity * invicible) + (dist_size * dist_val) + (compete_size * compete_val)
+    eval_val = (token_val * token_size) + dang_val + (invinciblity * invincible) + (dist_size * dist_val) + (compete_size * compete_val)
 
     return eval_val
 
