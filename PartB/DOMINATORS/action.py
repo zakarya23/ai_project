@@ -183,6 +183,7 @@ def eval(state):
     dist_size = 1
     token_size = 1.5
     compete_size = 2 
+    throw_size = 1
     compete_val = 0
     token_val = 0
     
@@ -197,6 +198,7 @@ def eval(state):
     
     dist_val = closest_opp(state)
     invincible = win_chance(state)
+    throw_val = number of our throws left - number of opponent throws left 
     if number of our throws == 0 and number of opponent throws == 0:
         invinciblity = 10
 
@@ -219,7 +221,7 @@ def eval(state):
     token_val += len(our_piece_dic.values())
     token_val -= len(opp_piece_dic.values())
 
-    eval_val = (token_val * token_size) + dang_val + (invinciblity * invincible) + (dist_size * dist_val) + (compete_size * compete_val)
+    eval_val = (token_val * token_size) + dang_val + (invinciblity * invincible) + (dist_size * dist_val) + (compete_size * compete_val) + (throw_val * throw_size)
 
     return eval_val
 
