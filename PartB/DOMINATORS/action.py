@@ -181,7 +181,7 @@ def eval(state):
     #evaluation value components
         
     dist_size = 1
-    token_size = 1 
+    token_size = 1.5
     compete_size = 2 
     compete_val = 0
     token_val = 0
