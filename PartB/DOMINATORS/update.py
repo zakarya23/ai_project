@@ -1,18 +1,26 @@
-
 def battle_ourself(states, location, name, state):
+    '''
+    If we battle ourself
+    '''
+    # Making sure we have some pieces there. 
     if len(states[location]) > 0:
         prev_pieces = states[location][0]
         new_piece = name
         if state['pairs'][new_piece] == prev_pieces:
+            # The pieces already there lost. 
             # We remove all prev pieces and add new piece 
             states[location].clear()
             states[location].append(name)
         elif new_piece == prev_pieces: 
+            # Else they the same and we append.
             states[location].append(name)
     else: 
         states[location].append(name)
 
 def battle_opponent(states, opponent, opponent_pieces, name, location, state): 
+    '''
+    When we battle opponent
+    '''
     if len(opponent_pieces) > 0: 
         opp_piece = opponent_pieces[0] 
         if state['pairs'][name] == opp_piece:
@@ -25,6 +33,9 @@ def battle_opponent(states, opponent, opponent_pieces, name, location, state):
             states[location].append(name)
 
 def update_throw(states, opponent, name, location, state): 
+    '''
+    Updates throw for both us and opponent 
+    '''
     if location not in states: 
         if location in opponent and len(opponent[location]) > 0: 
             opponent_pieces = opponent[location]
@@ -37,6 +48,9 @@ def update_throw(states, opponent, name, location, state):
         battle_ourself(states, location, name, state)
 
 def update_slide(states, opponent, old_location, new_location, state):
+    '''
+    Updates slide for both us and opponent
+    '''
     if old_location not in states:
         return None
     old_pieces = states[old_location]
@@ -79,13 +93,14 @@ def update_slide(states, opponent, old_location, new_location, state):
             states[new_location].append(moved_piece)
 
 def update_states(player_action, opponent_action, state):
+    '''
+    Main function called in main to update state of the game. 
+    '''
     # Update ours first 
-    # print(f'{player_action} {opponent_action}')
     if player_action[0] == 'THROW':
         name = player_action[1] 
         location = player_action[2]     
         update_throw(state['board'].our, state['board'].opponent, name, location, state)
-        # print(state['board'].our)
         state['throws'] += 1
     else: 
         old_location = player_action[1] 

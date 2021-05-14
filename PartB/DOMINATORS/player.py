@@ -1,10 +1,7 @@
 from DOMINATORS.update import update_states
 from DOMINATORS.board import Board
-from IPython.display import clear_output
 from DOMINATORS.action import take_action
 
-# need to make sure not to kill our pieces
-# improve throws 
 class Player:
     def __init__(self, player):
         """
@@ -23,8 +20,7 @@ class Player:
         of the game, select an action to play this turn.
         """
         return take_action(self.states)
-        
-
+    
     def update(self, opponent_action, player_action):
         """
         Called at the end of each turn to inform this player of both

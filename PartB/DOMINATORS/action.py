@@ -1,16 +1,16 @@
-from DOMINATORS.board import Board
 from random import randrange
 from numpy import inf
 from random import shuffle
-import math
-
-
+from DOMINATORS.utility import eval
 
 def piece_dict(state):
+    '''
+    Finds total number of each piece for 
+    us and opponent
+    '''
     opp_piece_dic = {'r': 0, 'p': 0, 's': 0}
     our_piece_dic = {'r': 0, 'p': 0, 's': 0}
-    
-    # throw = None # name of the selected piece that we going to throw
+
     ours = state['board'].our
     opponent = state['board'].opponent
     for location in opponent:
@@ -23,322 +23,175 @@ def piece_dict(state):
 
     return opp_piece_dic, our_piece_dic
 
+def neighbours(location, state):
+    all_neigh = [] 
+    for point in state['board'].vectors: 
+        new_point = (location[0] + point[0], location[1] +  point[1])
+        if new_point in state['board'].spots:
+            all_neigh.append(new_point)
+    return all_neigh
+
 def first_action(state): 
+    '''
+    Outputs a random location and random piece to 
+    be thrown at the first throw.
+    '''
+    # Choosing a random piece
+    token = ["r", "s", "p"]
+    r_index = randrange(len(token))
+    piece = token[r_index]
+    # Making sure its first turn 
     if state['throws'] == 0: 
         initial = randrange(0, 2)
-        # print(f'a  ={initial}')
         if state['player_type'] == "upper":
-            # print('a')
             state['throw_x'] = 4
-            return (4, -initial)
+            point = (4, -initial)
+            return ("THROW", piece, point) 
         else:
             state['throw_x'] = -4
-            # print('b')
-            return (-4, initial)
+            point = (-4, initial)
+            return ("THROW", piece, point) 
 
 def throw_what(state):
+        '''
+        Decides what to throw based on the current state of 
+        our pieces in the game.
+        '''
         throw = None
         opp_piece_dic, our_piece_dic = piece_dict(state)
 
-        # we need rock to kill the scissors
+        # We need rock to kill the scissors
         if our_piece_dic['r'] == 0 and opp_piece_dic['s'] > 0:
             throw = 'r'
-        # we need paper to kill the rocks
+        # We need paper to kill the rocks
         if our_piece_dic['p'] == 0 and opp_piece_dic['r'] > 0:
             throw = 'p'
-        # we need scissor to kill the paper
+        # We need scissor to kill the paper
         if our_piece_dic['s'] == 0 and opp_piece_dic['p'] > 0:
             throw = 's'
 
         if throw:
             return throw
         else: 
-            # Choose random piece
+            # Else we choose random piece
             token = ["r", "s", "p"]
             r_index = randrange(len(token))
             return token[r_index]
 
-def distance(p1, p2):    
-    return math.sqrt((p2[1] - p1[1])**2 + (p2[0] - p1[0])**2)
-
-def danger(state): 
-    distance = inf
-    our = None
-    opp = None
-    for our_loc in state['board'].our:
-        for opp_loc in state['board'].opponent: 
-            # print(f'{our_loc} {opp_loc}')
-            # dis = distance(our_loc, opp_loc)
-            dis = 0
-            if dis < distance and (len(state['board'].our[our_loc]) > 0) and (len(state['board'].opponent[opp_loc]) > 0): 
-                distance = distance
-                our = our_loc
-                opp = opp_loc
-    
-    our_piece = state['board'].our[our][0]
-    opp_piece = state['board'].opponent[opp][0]
-
-    if state['pairs'][opp_piece] == our_piece:
-        # A danger piece is close 
-        return -1 
-    elif state['pairs'][our_piece] == opp_piece:
-        return 1 
-    else: 
-        return 0 
-
-def closeness(our_piece, opp_piece, our_pieces, opponent_pieces):
-
-    if len(our_pieces) == 0 or len(opponent_pieces) == 0:
-        return 9
-
-    dist = []
-    for loc1 in our_pieces:
-        for loc2 in opponent_pieces:
-            p1_pieces = our_pieces[loc1]
-            p2_pieces = opponent_pieces[loc2]
-            if len(p1_pieces) > 0 and len(p2_pieces) > 0:
-                if p1_pieces[0] == our_piece and p2_pieces[0] == opp_piece: 
-                    dist.append(distance(p1_pieces[0], p2_pieces[0]))
-    if len(dist) > 0:
-        return min(dist)
-    return 0
-
-def closest_opp(state):
-    our_r, our_p, our_s = [], [], []
-    opp_r, opp_p, opp_s = [], [], []
-    opp_piece_dic, our_piece_dic = piece_dict(state)
-    
-    for p in our_piece_dic:
-        if p == 'r':
-            our_r.append(p)
-        if p == 'p':
-            our_p.append(p)
-        else:
-            our_s.append(p)
-        for o in opp_piece_dic:
-            if o == 'r':
-                opp_r.append(o)
-            if o == 'p':
-                opp_p.append(o)
-            else:
-                opp_s.append(o)
-
-    dist_r_s = closeness(our_r, opp_s, state['board'].our, state['board'].opponent)
-    dist_p_r = closeness(our_p, opp_r, state['board'].our, state['board'].opponent)
-    dist_s_p = closeness(our_s, opp_p, state['board'].our, state['board'].opponent)
-
-    best_dist = 1/(min(dist_r_s, dist_p_r, dist_s_p) + 1)
-    return best_dist
-
-
-def win_chance(state):
-    opp_piece_dic, our_piece_dic = piece_dict(state)
-    our_pieces = list(our_piece_dic.values())
-    opp_pieces = list(opp_piece_dic.values())
-
-    chance = 0
-
-    for p in our_pieces:
-        winner = 0
-        
-        for o in opp_pieces:
-            if defeat(p, o) == -1:
-                winner = 1
-            
-            if defeat(p, o) == 1:
-                winner = 1
-        
-        if winner != 1:
-            chance += 1
-    
-    for o in our_pieces:
-        winner = 0
-        
-        for o in opp_pieces:
-            if defeat(o, p) == -1:
-                winner = 1
-            
-            if defeat(p, o) == 1:
-                winner = 1
-        
-        if winner != 1:
-            chance -= 1
-
-    #chance of invicibility 
-    return chance 
-
-    
-
-def defeat(p1, p2):
-    type = ['r', 's', 'p']
-    for t in range(3):
-        w = type[t]
-        l = type[(t+1)%3]
-        if w == p1 and l == p2:
-            return 1
-        
-        if w == p1 and l == p2:
-            return -1
-    return 0
-
-
-
-def eval(state): 
-    #evaluation value components
-        
-    dist_size = 1
-    token_size = 1 
-    compete_size = 2 
-    compete_val = 0
-    token_val = 0
-    invinciblity = 0
-    
-    # Utility: basically will check for a chance of winning like 
-    # if the game ended: how to write this? 
-    opp_piece_dic, our_piece_dic = piece_dict(state)
-
-    compete_val += our_piece_dic['r'] - opp_piece_dic['p']
-    compete_val += our_piece_dic['s'] - opp_piece_dic['r']
-    compete_val += our_piece_dic['p'] - opp_piece_dic['s'] 
-    # opponent_pieces = self.board.opponent
-    
-    dist_val = closest_opp(state)
-    invincible = win_chance(state)
-    if state['throws'] == 0 and state['opponent_throws']  == 0:
-        invinciblity = 10
-
-# board state where we still got throws but our opponent does not
-    elif state['opponent_throws'] == 0:
-      
-        if invincible < 0:
-            invinciblity = 5
-    elif state['throws']  == 0 == 0:
-      
-        if invincible > 0:
-            invinciblity = 5
-    
-     #eval_val += self.check_piece_future(location, opponent_pieces, piece)
-
-    # Checking if we are close to the opposite opponent piece 
-    dang_val = danger(state)
-
-      
-    token_val += len(our_piece_dic.values())
-    token_val -= len(opp_piece_dic.values())
-
-    eval_val = (token_val * token_size) + dang_val + (invinciblity * invincible) + (dist_size * dist_val) + (compete_size * compete_val)
-    return int(eval_val)
-
 def minimax(current_piece, current_depth, piece, maximising, state, alpha: int=-inf, beta: int=inf):
         if current_depth == state['max_depth']:
-            return eval(state)  
             # Evaluation function
-        
+            return eval(state)  
+        # Will store the place we will move the piece. 
         future_piece = None
-        # get all possible actions and stored them in a list (NOT IMPLEMENTED YET)
-        shuffle(state['board'].vectors) #random
+        shuffle(state['board'].vectors) # Random
         max_value = -inf if maximising else inf
+        # Sometimes our function returns one value and sometimes a tuple of values. 
+        # This boolean is to check what was returned so we handle it accordingly. 
         one = False
-        for cell in state['board'].vectors:
-            child = (current_piece[0] + cell[0], current_piece[1] + cell[1])
-            if child in state['board'].spots: 
-                eval_child = minimax(child, current_depth + 1, piece, not maximising, state, alpha, beta)
-                if (type(eval_child) == int): 
-                    one = True
-
-                if one and maximising and max_value < eval_child:
-                    max_value = eval_child
-                    future_piece =  child
-                    alpha = max(alpha, max_value)
-                    if beta <= alpha:
-                        break
-                elif not one and maximising and max_value < eval_child[1]:
-                    max_value = eval_child[1]
-                    future_piece =  child
-                    alpha = max(alpha, max_value)
-                    one = False
-                    if beta <= alpha:
-                        break
-                
-                elif one and (not maximising) and max_value > eval_child:
-                    max_value = eval_child
-                    future_piece =  child
-                    beta = min(beta, max_value)
-                    if beta <= alpha:
-                        break
-
-                elif not one and (not maximising) and max_value > eval_child[1]:
-                    max_value = eval_child[1]
-                    future_piece =  child
-                    beta = min(beta, max_value)
-                    one = False
-                    if beta <= alpha:
-                        break
-
+        # Go through all possible neighbours.
+        # for cell in state['board'].vectors:
+        for child in neighbours(current_piece, state):
+            # Run minimax on it. 
+            eval_child = minimax(child, current_depth + 1, piece, not maximising, state, alpha, beta)
+            # Here we check what type was returned. 
+            if (type(eval_child) == int): 
+                one = True
+            # Find max accordingly. 
+            if one and maximising and max_value < eval_child:
+                max_value = eval_child
+                future_piece =  child
+                alpha = max(alpha, max_value)
+                if beta <= alpha:
+                    break
+            # For tuple returned. 
+            elif not one and maximising and max_value < eval_child[1]:
+                max_value = eval_child[1]
+                future_piece =  child
+                alpha = max(alpha, max_value)
+                one = False
+                if beta <= alpha:
+                    break
+            # Find min accordingly.
+            elif one and (not maximising) and max_value > eval_child:
+                max_value = eval_child
+                future_piece =  child
+                beta = min(beta, max_value)
+                if beta <= alpha:
+                    break
+            # For tuple returned. 
+            elif not one and (not maximising) and max_value > eval_child[1]:
+                max_value = eval_child[1]
+                future_piece =  child
+                beta = min(beta, max_value)
+                one = False
+                if beta <= alpha:
+                    break
         return future_piece, max_value
 
 def best_move(state): 
+    '''
+    Calculates and returns the best move based on 
+    the minimax algorithm.
+    '''
+    # Set highest value to negative infinity. 
     highest = -inf
+    # Will store the piece location we will be returning. 
     piece = None
-
+    # From which location we will move from. 
+    move_from = None
+    # Iterate over locations where we have pieces.
     for locations in state['board'].our.keys():
+        # Get what pieces we have at that location.
         pieces = state['board'].our[locations]
+        # Make sure we do have something there and an 
+        # empty list was not returned. 
         if len(pieces) > 0:
-            for _ in pieces: 
-
-                fp, new_score = minimax(locations, 0, pieces[0], True, state)
-
-                if new_score > highest:
-                    highest = new_score 
-                    if fp: 
-                        piece = fp
-                      
-            return locations, piece
+            # Run minimax on the location and its piece. 
+            fp, new_score = minimax(locations, 0, pieces[0], True, state)
+            # If highest then we change. 
+            if new_score > highest:
+                highest = new_score 
+                # If piece exists then we can move it. 
+                if fp: 
+                    move_from = locations
+                    piece = fp          
+    return move_from, piece
 
 def take_action(state):
-    token = ["r", "s", "p"]
+    '''
+    Called in main to return the main action 
+    that is to be taken. 
+    '''
+    # An action was found
     sent = False
-    board = Board()
+    # The piece to be thrown
     new = None
 
-    # How to decide whether to throw or slide 
+    # First turn 
     if state['turn'] % 2 ==  0 and state["first_turn"]: 
         state["first_turn"] = False
-        # First piece chosen randomly 
-        r_index = randrange(len(token))
-        
         sent = True
-        throw_at = first_action(state)
-        # print(throw_at)
-        # state["throws"] += 1
-        # print(("THROW", token[r_index], (throw_at[0], throw_at[1])))
-        return ("THROW", token[r_index], (throw_at[0], throw_at[1])) 
-
+        return first_action(state)
     elif state['turn'] % 2 ==  0 and state["throws"] < 9: 
-        # print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss")
         state['turn'] += 1
-        # state["throws"] += 1
         initial = randrange(0, 2)
         if (state['player_type'] == "upper"):
             new = (state['throw_x'], -initial)
-            if new in board.spots: 
+            if new in state['board'].spots: 
                 sent = True
-                # self.start = new
         else: 
             new = (state['throw_x'], initial)
-            if new in board.spots:
+            if new in state['board'].spots:
                 sent = True 
-                # self.start = new
         piece = throw_what(state)
         if sent:
-            print("POPOPOPO")
-            return ("THROW", piece, (new[0], new[1])) 
+            return ("THROW", piece, new) 
     while not sent: 
         state['turn'] += 1
         piece = best_move(state)
-        to_move = piece[0]
-        move = piece[1]
-        if to_move and move:
-            return ("SLIDE", to_move, move)
-
-    
+        if piece:
+            to_move = piece[0]
+            move = piece[1]
+            if to_move and move:
+                return ("SLIDE", to_move, move)

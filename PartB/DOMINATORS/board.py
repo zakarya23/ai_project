@@ -1,5 +1,3 @@
-from DOMINATORS.piece_state import PieceState
-
 class Board:
     def __init__(self): 
         # List of piece classes
