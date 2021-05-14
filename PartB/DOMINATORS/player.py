@@ -14,14 +14,6 @@ class Player:
         play as Upper), or the string "lower" (if the instance will play
         as Lower).
         """
-        # If upper is given to us we can start with x = 4 and y is anything in the given range
-        if player == "upper": 
-            self.start = (4, 0)
-            self.move = "SUBTRACT"
-        else: 
-            self.start = (-4, 0)
-            self.move = "ADD"
-        
         self.player_type = player
         self.board = Board()
         self.turn = 0 
