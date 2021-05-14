@@ -15,7 +15,7 @@ class Player:
         as Lower).
         """
         self.board = Board()
-        self.states = {"turn": 0, "first_turn": True, "throws": 0, "throw_x": None, "player_type": player, "board": Board(), "max_depth": 3, "pairs":{'r':'s', 'p': 'r', 's':'p'}}
+        self.states = {"turn": 0, "first_turn": True, "throws": 0, "opponent_throws": 0, "throw_x": None, "player_type": player, "board": Board(), "max_depth": 3, "pairs":{'r':'s', 'p': 'r', 's':'p'}}
 
     def action(self):
         """

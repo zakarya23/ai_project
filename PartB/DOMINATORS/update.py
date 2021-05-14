@@ -85,7 +85,8 @@ def update_states(player_action, opponent_action, state):
         name = player_action[1] 
         location = player_action[2]     
         update_throw(state['board'].our, state['board'].opponent, name, location, state)
-        print(state['board'].our)
+        # print(state['board'].our)
+        state['throws'] += 1
     else: 
         old_location = player_action[1] 
         new_location = player_action[2] 
@@ -96,6 +97,7 @@ def update_states(player_action, opponent_action, state):
         name = opponent_action[1] 
         location = opponent_action[2]
         update_throw(state['board'].opponent, state['board'].our, name, location, state)
+        state['opponent_throws'] += 1
     else: 
         old_location = opponent_action[1] 
         new_location = opponent_action[2] 

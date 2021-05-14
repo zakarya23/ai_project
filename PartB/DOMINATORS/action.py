@@ -86,42 +86,48 @@ def danger(state):
     else: 
         return 0 
 
-def closeness(state):
+def closeness(our_piece, opp_piece, our_pieces, opponent_pieces):
 
-    if state['board'].our == [] or state['board'].opponent == []:
+    if len(our_pieces) == 0 or len(opponent_pieces) == 0:
         return 9
 
     dist = []
-    for p in state['board'].our:
-        for o in state['board'].opponent:
-            dist.append(distance(p, o))
-    return min(dist)
+    for loc1 in our_pieces:
+        for loc2 in opponent_pieces:
+            p1_pieces = our_pieces[loc1]
+            p2_pieces = opponent_pieces[loc2]
+            if len(p1_pieces) > 0 and len(p2_pieces) > 0:
+                if p1_pieces[0] == our_piece and p2_pieces[0] == opp_piece: 
+                    dist.append(distance(p1_pieces[0], p2_pieces[0]))
+    if len(dist) > 0:
+        return min(dist)
+    return 0
 
 def closest_opp(state):
-    our_r, our_p, our_s = [] 
-    opp_r, opp_p, opp_s =[] 
+    our_r, our_p, our_s = [], [], []
+    opp_r, opp_p, opp_s = [], [], []
     opp_piece_dic, our_piece_dic = piece_dict(state)
     
     for p in our_piece_dic:
-        if p.value() == 'r':
+        if p == 'r':
             our_r.append(p)
-        if p.value() == 'p':
+        if p == 'p':
             our_p.append(p)
         else:
             our_s.append(p)
         for o in opp_piece_dic:
-            if p.value() == 'r':
-                opp_r.append(p)
-            if p.value() == 'p':
-                opp_p.append(p)
+            if o == 'r':
+                opp_r.append(o)
+            if o == 'p':
+                opp_p.append(o)
             else:
-                opp_s.append(p)
+                opp_s.append(o)
 
-    dist_r_s = closeness(our_r, opp_s)
-    dist_p_r = closeness(our_p, opp_r)
-    dist_s_p = closeness(our_s, opp_p)
+    dist_r_s = closeness(our_r, opp_s, state['board'].our, state['board'].opponent)
+    dist_p_r = closeness(our_p, opp_r, state['board'].our, state['board'].opponent)
+    dist_s_p = closeness(our_s, opp_p, state['board'].our, state['board'].opponent)
 
-    best_dist = 1/(min(dist_r_s, dist_p_r, dist_s_p))
+    best_dist = 1/(min(dist_r_s, dist_p_r, dist_s_p) + 1)
     return best_dist
 
 
@@ -185,6 +191,7 @@ def eval(state):
     compete_size = 2 
     compete_val = 0
     token_val = 0
+    invinciblity = 0
     
     # Utility: basically will check for a chance of winning like 
     # if the game ended: how to write this? 
@@ -197,15 +204,15 @@ def eval(state):
     
     dist_val = closest_opp(state)
     invincible = win_chance(state)
-    if number of our throws == 0 and number of opponent throws == 0:
+    if state['throws'] == 0 and state['opponent_throws']  == 0:
         invinciblity = 10
 
 # board state where we still got throws but our opponent does not
-    elif opponent throw == 0:
+    elif state['opponent_throws'] == 0:
       
         if invincible < 0:
             invinciblity = 5
-    elif our number of throws == 0:
+    elif state['throws']  == 0 == 0:
       
         if invincible > 0:
             invinciblity = 5
@@ -220,8 +227,7 @@ def eval(state):
     token_val -= len(opp_piece_dic.values())
 
     eval_val = (token_val * token_size) + dang_val + (invinciblity * invincible) + (dist_size * dist_val) + (compete_size * compete_val)
-
-    return eval_val
+    return int(eval_val)
 
 def minimax(current_piece, current_depth, piece, maximising, state, alpha: int=-inf, beta: int=inf):
         if current_depth == state['max_depth']:
@@ -304,14 +310,14 @@ def take_action(state):
         sent = True
         throw_at = first_action(state)
         # print(throw_at)
-        state["throws"] += 1
+        # state["throws"] += 1
         # print(("THROW", token[r_index], (throw_at[0], throw_at[1])))
         return ("THROW", token[r_index], (throw_at[0], throw_at[1])) 
 
     elif state['turn'] % 2 ==  0 and state["throws"] < 9: 
-        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss")
+        # print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss")
         state['turn'] += 1
-        state["throws"] += 1
+        # state["throws"] += 1
         initial = randrange(0, 2)
         if (state['player_type'] == "upper"):
             new = (state['throw_x'], -initial)
