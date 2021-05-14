@@ -111,26 +111,48 @@ class Player:
     #         else:
     #             return 0 
             
-    def eval(self, location, piece): 
-        eval_val = 0
+    def eval(self): 
+        #evaluation value components
+        
+        dist_size = 1
+        token_size = 1 
+        compete_size = 2 
+        
         # Utility: basically will check for a chance of winning like 
         # if the game ended: how to write this? 
         opp_piece_dic, our_piece_dic = self.piece_dict()
 
-        eval_val += our_piece_dic['r'] - opp_piece_dic['p']
-        eval_val += our_piece_dic['s'] - opp_piece_dic['r']
-        eval_val += our_piece_dic['p'] - opp_piece_dic['s'] 
+        compete_val += our_piece_dic['r'] - opp_piece_dic['p']
+        compete_val += our_piece_dic['s'] - opp_piece_dic['r']
+        compete_val += our_piece_dic['p'] - opp_piece_dic['s'] 
         opponent_pieces = self.board.opponent
+        
+        dist_val = closest_opp(self)
+        
+        if number of our throws == 0 and number of opponent throws == 0:
+        invinciblity = 10
 
+    # board state where opponent has no throws but player does have
+        elif opponent throw == 0:
+        # If they currently have a more invinvible tokens but we can throw opposite type to negate so half the weight
+            if invincible < 0:
+                invinciblity = 5
+        elif our number of throws == 0:
+        # If they currently have a more invinvible tokens but we can throw opposite type to negate so half the weight
+            if invincible > 0:
+                invinciblity = 5
+        
         # eval_val += self.check_piece_future(location, opponent_pieces, piece)
 
         # Checking if we are close to the opposite opponent piece 
-        eval_val += self.danger()
+        dang_val += self.danger()
 
         # Idk why I put this here... 
-        eval_val += (our_piece_dic['r'] + our_piece_dic['s'] + our_piece_dic['p'])
-        eval_val -= (opp_piece_dic['p'] + opp_piece_dic['s'] + opp_piece_dic['r'])
+        token_val += len(our_piece_dic.values())
+        token_val -= len(opp_piece_dic.values())
 
+        eval_val = (token_val * token_size) + (dang_val) + (inviciblity * invicible) + (dist_size * dist_val) + (compete_size * compete_val)
+        
         return eval_val
 
     def minimax(self, current_piece, current_depth, piece, maximising, alpha: int=-sys.maxsize, beta: int=sys.maxsize):
@@ -349,3 +371,42 @@ class Player:
             old_location = opponent_action[1] 
             new_location = opponent_action[2] 
             self.update_slide(self.board.opponent, self.board.our, old_location, new_location)
+     
+    def closeness(self.board.our, self.board.opponent):
+
+        if self.board.our == [] or self.board.opponent == []:
+            return 9
+
+        dist = []
+        for p in self.board.our:
+            for o in self.board.opponent:
+                dist.append(distance(p, o))
+        return min(dist)
+
+    def closest_opp(self):
+        our_r, our_p, our_s = [] 
+        opp_r, opp_p, opp_s =[] 
+        opp_piece_dic, our_piece_dic = self.piece_dict()
+        
+        for p in our_piece_dic:
+            if r.value() == 'r':
+                our_r.append(r)
+            if p.value() == 'p':
+                our_p.append(p)
+            else:
+                our_s.append(s)
+         for o in opp_piece_dic:
+            if r.value() == 'r':
+                opp_r.append(r)
+            if p.value() == 'p':
+                opp_p.append(p)
+            else:
+                opp_s.append(s)
+
+        dist_r_s = closeness(our_r, opp_s)
+        dist_p_r = closeness(our_p, opp_r)
+        dist_s_p = closeness(our_s, opp_p)
+
+        best_dist = 1/(min(dist_r_s, dist_p_r, dist_s_p))
+        return best_dist
+    
