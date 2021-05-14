@@ -14,13 +14,7 @@ class Player:
         play as Upper), or the string "lower" (if the instance will play
         as Lower).
         """
-        self.player_type = player
         self.board = Board()
-        self.turn = 0 
-        self.first_turn = True 
-        self.throws = 0 
-        self.max_depth = 3 
-        self.pairs = {'r':'s', 'p': 'r', 's':'p'}
         self.states = {"turn": 0, "first_turn": True, "throws": 0, "throw_x": None, "player_type": player, "board": Board(), "max_depth": 3, "pairs":{'r':'s', 'p': 'r', 's':'p'}}
 
     def action(self):
