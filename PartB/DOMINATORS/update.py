@@ -1,3 +1,5 @@
+from DOMINATORS.helpers import pairs
+
 def battle_ourself(states, location, name, state):
     '''
     If we battle ourself
@@ -6,7 +8,7 @@ def battle_ourself(states, location, name, state):
     if len(states[location]) > 0:
         prev_pieces = states[location][0]
         new_piece = name
-        if state['pairs'][new_piece] == prev_pieces:
+        if pairs[new_piece] == prev_pieces:
             # The pieces already there lost. 
             # We remove all prev pieces and add new piece 
             states[location].clear()
@@ -23,7 +25,7 @@ def battle_opponent(states, opponent, opponent_pieces, name, location, state):
     '''
     if len(opponent_pieces) > 0: 
         opp_piece = opponent_pieces[0] 
-        if state['pairs'][name] == opp_piece:
+        if pairs[name] == opp_piece:
             # New piece wins over opp and is added 
             opponent[location].clear()
             states[location] = [] 
@@ -66,7 +68,7 @@ def update_slide(states, opponent, old_location, new_location, state):
     if (new_location in states) and len(states[new_location]) > 0: 
         prev_pieces = states[new_location]
         prev_piece = prev_pieces[0] 
-        if state['pairs'][moved_piece] == prev_piece: 
+        if pairs[moved_piece] == prev_piece: 
             # New piece won and killed all our others 
             states[new_location].clear() 
             # Killed opponents too
@@ -80,7 +82,7 @@ def update_slide(states, opponent, old_location, new_location, state):
         if (new_location in opponent) and (len(opponent[new_location]) > 0):
             opp_pieces = opponent[new_location]
             opp_piece = opp_pieces[0] 
-            if state['pairs'][moved_piece] == opp_piece:
+            if pairs[moved_piece] == opp_piece:
                 # New piece won and killed all our others 
                 opponent[new_location].clear() 
                 states[new_location] = [] 

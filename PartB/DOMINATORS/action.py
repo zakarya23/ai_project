@@ -2,6 +2,7 @@ from random import randrange
 from numpy import inf
 from random import shuffle
 from DOMINATORS.utility import eval
+from DOMINATORS.helpers import scoring
 
 def piece_dict(state):
     '''
@@ -93,6 +94,7 @@ def minimax(current_piece, current_depth, piece, maximising, state, alpha: int=-
         # for cell in state['board'].vectors:
         for child in neighbours(current_piece, state):
             # Run minimax on it. 
+            # if child not in state['board'].our: 
             eval_child = minimax(child, current_depth + 1, piece, not maximising, state, alpha, beta)
             # Here we check what type was returned. 
             if (type(eval_child) == int): 
@@ -157,6 +159,67 @@ def best_move(state):
                     move_from = locations
                     piece = fp          
     return move_from, piece
+
+def throw(piece, at): 
+    return ("THROW", piece, at)
+
+def slide(prev, to):
+    return ("SLIDE", prev, to)
+
+def swing(prev, to): 
+    return ("SWING", prev, to)
+
+def check_swings(l1, l2, state):
+    swings = neighbours(l2, state)
+    final_swings = [] 
+    for s in swings: 
+        if s not in state['board'].our: 
+
+            # final_swings.append(swing(l1, l2))
+            return final_swings
+
+def check_slides(loc, state):
+    final_slides = []
+    piece = best_move(state)
+    if piece:
+        to_move = piece[0]
+        move = piece[1]
+        if to_move and move:
+            final_slides.append(slide(to_move, move))
+    return final_slides
+
+def possible_moves(state):
+    throws, slides, swings = [], [], [] 
+
+    # Throws 
+    if state['throws'] < 9: 
+        state['turn'] += 1
+        initial = randrange(0, 2)
+        if (state['player_type'] == "upper"):
+            new = (state['throw_x'], -initial)
+            if new in state['board'].spots: 
+                sent = True
+        else: 
+            new = (state['throw_x'], initial)
+            if new in state['board'].spots:
+                sent = True 
+        piece = throw_what(state)
+        if sent:
+            throws += [("THROW", piece, new)]
+        
+
+    # Slides 
+    for location in state['board'].our: 
+        slides += (check_slides(location, state))
+
+    # Swings
+    # for location1 in state['board'].our: 
+    #     for location2 in state['board'].our: 
+    #         if location1 != location2 and (location2 in neighbours(location1, state)): 
+    #             swings += (check_swings(location1, location2, state))
+
+    total = throws + slides
+    return total
 
 def take_action(state):
     '''

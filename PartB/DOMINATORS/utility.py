@@ -1,5 +1,6 @@
 import math
 from numpy import inf
+from DOMINATORS.helpers import pairs
 
 def piece_dict(state):
     '''
@@ -20,7 +21,7 @@ def piece_dict(state):
             our_piece_dic[p] += 1
 
     return opp_piece_dic, our_piece_dic
-    
+
 def defeat(p1, p2):
     type = ['r', 's', 'p']
     for t in range(3):
@@ -94,10 +95,10 @@ def danger(state):
     our_piece = state['board'].our[our][0]
     opp_piece = state['board'].opponent[opp][0]
 
-    if state['pairs'][opp_piece] == our_piece:
+    if pairs[opp_piece] == our_piece:
         # A danger piece is close 
         return -1 
-    elif state['pairs'][our_piece] == opp_piece:
+    elif pairs[our_piece] == opp_piece:
         return 1 
     else: 
         return 0 
